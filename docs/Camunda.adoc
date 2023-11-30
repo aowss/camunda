@@ -1,0 +1,84 @@
+:figure-caption!:
+:imagesdir: res
+
+= Camunda 8
+
+== Technical Overview
+
+=== Architecture
+
+.Camunda Architecture
+image::Camunda Architecture.png[Architecture, 430, 240, role="thumb"]
+
+* Camunda 8 only offers a standalone deployment option, a.k.a. remote workflow engine
+
+The clients communicate with the Zeebe cluster using https://grpc.io/[gRPC] through the gRPC Gateway.
+
+* All the process data is streamed to an https://www.elastic.co/[Elastic Search] cluster which feeds the https://docs.camunda.io/docs/components/operate/operate-introduction/[Operate], https://docs.camunda.io/docs/components/tasklist/introduction-to-tasklist/[Tasklist] and https://docs.camunda.io/optimize/components/what-is-optimize/[Optimize] components
+
+* Zeebe uses replication and the https://raft.github.io/[RAFT protocol] for fault-tolerance
+
+* Zeebe uses back-pressure for resilience
+
+* Zeebe uses https://oauth.net/2/[OAuth 2] for authentication
+
+=== Deployment
+
+* SaaS is the preferred hosting option
+
+The https://docs.camunda.io/docs/components/console/introduction-to-console/[Console] component is used to manage the cluster.
+
+* In the Self-Managed deployment option, Identity is the component that is in charge of authentication and authorization
+
+It is based on https://www.keycloak.org/[Keycloak].
+
+=== Modeler
+
+* Connectors can be used from the Modeler
+
+=== Tasklist
+
+=== Licensing
+
+* Every component is free for non-production use
+
+* In the Self-Managed deployment option, the Web Modeler is available for Enterprise customers
+
+== Best Practices
+
+=== Development
+
+* Use the latest https://spring.io/projects/spring-boot[Spring Boot] version: `3.2.X`
+* Use the latest Java version: https://openjdk.org/projects/jdk/21/[JDK 21]
+* Use https://github.com/camunda-community-hub/spring-zeebe[Spring Zeebe] to communicate with Zeebe from Spring Boot
+* The worker's client credentials should be limited to Zeebe and Tasklist
+
+Access to Operate and Optimize is not needed for the workers.
+
+=== Deployment
+
+=== Modeler
+
+* Use the https://docs.camunda.io/docs/components/modeler/web-modeler/new-web-modeler/[Web Modeler] to take advantage of its collaboration features
+
+* Use the https://docs.camunda.io/docs/components/modeler/bpmn/error-events/[BPMN Error event] for business errors and https://docs.camunda.io/docs/components/concepts/incidents/[Camunda Incidents] for technical errors
+
+In particular, use Camunda's built-in https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/#leveraging-retries[retry mechanism].
+
+* Follow Camunda's https://docs.camunda.io/docs/components/best-practices/modeling/naming-technically-relevant-ids/#using-naming-conventions-for-bpmn-ids[best practices] regarding ID names
+
+* Follow Camunda's https://docs.camunda.io/docs/components/best-practices/modeling/naming-bpmn-elements/[best practices] regarding BPMN element names
+
+* Use camel case for service tasks' task definition
+* Use camel case for
+
+=== Tasklist
+
+* As mentioned in https://academy.camunda.com/c8-technical-overview[Camunda 8 - Technical Overview], we should use the Tasklist https://docs.camunda.io/docs/apis-tools/tasklist-api-rest/tasklist-api-rest-overview/[REST API] over the https://docs.camunda.io/docs/apis-tools/tasklist-api/tasklist-api-overview/[GraphQL API] since the latter will be deprecated soon
+
+== Resources
+
+. https://docs.camunda.io/[Camunda 8 Docs]
+. https://docs.camunda.io/docs/components/best-practices/best-practices-overview/[Camunda 8 Docs - Best Practices]
+. https://academy.camunda.com[Camunda Academy]
+. https://camunda.com/blog/2022/02/moving-from-embedded-to-remote-workflow-engines/[Moving from Embedded to Remote Workflow Engines]
