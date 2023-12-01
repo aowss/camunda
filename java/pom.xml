@@ -9,10 +9,15 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>camunda-service-orchestration</artifactId>
+    <artifactId>camunda-java</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>service-orchestration</name>
-    <packaging>jar</packaging>
+    <name>java</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>service-orchestration</module>
+        <module>testing</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -21,4 +26,5 @@
             <version>${camunda.version}</version>
         </dependency>
     </dependencies>
+
 </project>

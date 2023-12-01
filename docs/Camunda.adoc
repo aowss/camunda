@@ -1,5 +1,6 @@
 :figure-caption!:
 :imagesdir: res
+:toc2:
 
 = Camunda 8
 
@@ -28,7 +29,7 @@ The clients communicate with the Zeebe cluster using https://grpc.io/[gRPC] thro
 
 The https://docs.camunda.io/docs/components/console/introduction-to-console/[Console] component is used to manage the cluster.
 
-* In the Self-Managed deployment option, Identity is the component that is in charge of authentication and authorization
+* In the Self-Managed deployment option, https://docs.camunda.io/docs/self-managed/identity/what-is-identity/[Identity] is the component that is in charge of authentication and authorization
 
 It is based on https://www.keycloak.org/[Keycloak].
 
@@ -49,11 +50,25 @@ It is based on https://www.keycloak.org/[Keycloak].
 === Development
 
 * Use the latest https://spring.io/projects/spring-boot[Spring Boot] version: `3.2.X`
+
 * Use the latest Java version: https://openjdk.org/projects/jdk/21/[JDK 21]
+
 * Use https://github.com/camunda-community-hub/spring-zeebe[Spring Zeebe] to communicate with Zeebe from Spring Boot
+
 * The worker's client credentials should be limited to Zeebe and Tasklist
 
 Access to Operate and Optimize is not needed for the workers.
+
+* The `handlers` package responsibilities are:
+
+1. extract data from the `ActivatedJob` variables,
+2. call the service,
+3. push data back to the `ActivatedJob` variables,
+4. inform the engine of the completion status
+
+* The `services` package's sole responsibility is to communicate with our APIs
+
+It should therefore have no dependency on any Camunda classes.
 
 === Deployment
 
@@ -67,14 +82,64 @@ In particular, use Camunda's built-in https://docs.camunda.io/docs/components/be
 
 * Follow Camunda's https://docs.camunda.io/docs/components/best-practices/modeling/naming-technically-relevant-ids/#using-naming-conventions-for-bpmn-ids[best practices] regarding ID names
 
+This is very important because these names are needed in the tests and are logged by the engine and therefore needed for troubleshooting.
+
 * Follow Camunda's https://docs.camunda.io/docs/components/best-practices/modeling/naming-bpmn-elements/[best practices] regarding BPMN element names
 
+This helps in communicating with other stakeholders.
+
 * Use camel case for service tasks' task definition
-* Use camel case for
 
 === Tasklist
 
-* As mentioned in https://academy.camunda.com/c8-technical-overview[Camunda 8 - Technical Overview], we should use the Tasklist https://docs.camunda.io/docs/apis-tools/tasklist-api-rest/tasklist-api-rest-overview/[REST API] over the https://docs.camunda.io/docs/apis-tools/tasklist-api/tasklist-api-overview/[GraphQL API] since the latter will be deprecated soon
+* Use the Tasklist https://docs.camunda.io/docs/apis-tools/tasklist-api-rest/tasklist-api-rest-overview/[REST API] over the https://docs.camunda.io/docs/apis-tools/tasklist-api/tasklist-api-overview/[GraphQL API]
+
+The GraphQL API will be deprecated soon as mentioned in https://academy.camunda.com/c8-technical-overview[Camunda 8 - Technical Overview].
+
+=== Testing
+
+* Run an embedded Zeebe test engine using the `zeebe-process-test-extension` dependency footnote:[as opposed to a test container using the `zeebe-process-test-extension-testcontainer` dependency]
+
+* Use the Spring test dependency https://github.com/camunda-community-hub/spring-zeebe#writing-test-cases[`spring-zeebe-test`] which is a wrapper around `zeebe-process-test-extension`
+
+* Use the assertions documented in https://docs.camunda.io/docs/apis-tools/java-client/zeebe-process-test/#assertions[Zeebe Process Test]
+
+* Every path must be tested and in particular every FEEL expression
+
+* For system tests, mock external APIs using https://wiremock.org[WireMock] instead of mocking the services using https://github.com/mockito/mockito[Mockito]
+
+* For system tests, start the process from the start and avoid using the `startBeforeElement` API
+
+* For unit tests, use https://github.com/mockito/mockito[Mockito] to mock the services and start the process just before the class under test is called using the `startBeforeElement` API
+
+* Don't forget to wait in the tests using the `ZeebeTestEngine` wait methods: `waitForIdleState` & `waitForBusyState`
+
+If you don't do that and use assertions about BPMN elements that are after the service or user tasks, the assertions will fail because they will be evaluated before the engine has time to progress in the flow.
+
+== Questions
+
+=== Testing
+
+* How can we avoid redeploying the BPMN diagram before each test ?
+
+[source, java]
+----
+@ZeebeProcessTest
+public class ProcessTest {
+    private ZeebeClient client;
+
+    @BeforeEach
+    public void setup() {
+        DeploymentEvent deploymentEvent = client.newDeployResourceCommand()
+                .addResourceFromClasspath("process.bpmn")
+                .send()
+                .join();
+    }
+}
+----
+
+Even though there is no need to redeploy the same BPMN diagram before each test, we can't use the `BeforeAll` annotation because it forces us to declare the `ZeebeClient` as `static`. +
+As a consequence, the `ZeebeClient` instance is not injected correctly when using the `ZeebeProcessTest` annotation
 
 == Resources
 
