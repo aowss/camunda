@@ -24,7 +24,7 @@ jobs:
           java-version: 21
 
       - name: Check Dependencies
-        run: mvn -B dependency:analysis versions:display-dependency-updates --file pom.xml
+        run: mvn -B dependency:analyze versions:display-dependency-updates --file pom.xml
 
       - name: Unit Tests
         run: mvn -B test --file pom.xml
