@@ -7,7 +7,7 @@
 = Service Orchestration
 
 .Process
-image::paymentProcess.png[Process, 430, 240, role="thumb"]
+image::paymentProcess.png[Process, role="thumb"]
 
 This example shows:
 
