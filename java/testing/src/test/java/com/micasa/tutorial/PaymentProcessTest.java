@@ -27,7 +27,7 @@ public class PaymentProcessTest {
     @BeforeEach
     public void setup() {
         DeploymentEvent deploymentEvent = client.newDeployResourceCommand()
-                .addResourceFromClasspath("payment.bpmn")
+                .addResourceFromClasspath("paymentProcess.bpmn")
                 .send()
                 .join();
 
@@ -43,7 +43,7 @@ public class PaymentProcessTest {
         );
 
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-        completeServiceTask(client, "credit-deduction", new CreditDeductionHandler());
+        completeServiceTask(client, "deductCredit", new CreditDeductionHandler());
 
         //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));
@@ -68,9 +68,9 @@ public class PaymentProcessTest {
         );
 
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-        completeServiceTask(client, "credit-deduction", new CreditDeductionHandler());
+        completeServiceTask(client, "deductCredit", new CreditDeductionHandler());
         completeUserTask(client, Map.of());
-        completeServiceTask(client, "credit-card-charging", new CreditCardChargingHandler());
+        completeServiceTask(client, "chargeCreditCard", new CreditCardChargingHandler());
 
         //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));
@@ -98,7 +98,7 @@ public class PaymentProcessTest {
         ProcessInstanceEvent processInstance = startProcessBefore(client, "PaymentProcess", "Gateway_CreditSufficient", variables);
         //  No need for the CreditDeductionHandler since the process starts after the Deduct Credit task
         completeUserTask(client, Map.of());
-        completeServiceTask(client, "credit-card-charging", new CreditCardChargingHandler());
+        completeServiceTask(client, "chargeCreditCard", new CreditCardChargingHandler());
 
         //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));

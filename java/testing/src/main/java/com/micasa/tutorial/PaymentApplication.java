@@ -37,14 +37,14 @@ public class PaymentApplication {
 
             // Start the Credit Deduction Worker
             final JobWorker creditDeductionWorker = client.newWorker()
-                            .jobType("credit-deduction")
+                            .jobType("deductCredit")
                             .handler(new CreditDeductionHandler())
                             .timeout(Duration.ofSeconds(WORKER_TIMEOUT).toMillis())
                             .open();
 
             // Start the Credit Deduction Worker
             final JobWorker creditCardChargingWorker = client.newWorker()
-                            .jobType("credit-card-charging")
+                            .jobType("chargeCreditCard")
                             .handler(new CreditCardChargingHandler())
                             .timeout(Duration.ofSeconds(WORKER_TIMEOUT).toMillis())
                             .open();

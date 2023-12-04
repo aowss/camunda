@@ -15,6 +15,8 @@ public class PaymentApplication {
     private static final String ZEEBE_AUTHORIZATION_SERVER_URL = "https://login.cloud.camunda.io/oauth/token";
     private static final String ZEEBE_TOKEN_AUDIENCE = "zeebe.camunda.io";
 
+    private static final int WORKER_TIMEOUT = 10;
+
     public static void main(String[] args) {
 
         //  Needed for the client to authenticate with the cluster
@@ -47,15 +49,15 @@ public class PaymentApplication {
                     .join();
 
             //  Register & start this job worker to handle 'chardCreditCard' jobs ( all jobs of this type will be assigned to this worker )
-            var creditCardWorker = client.newWorker()
+            var creditCardChargingWorker = client.newWorker()
                     .jobType("chargeCreditCard")
                     .handler(new CreditCardChargingHandler()) // Uses the handler to process and complete the job
-                    .timeout(Duration.ofSeconds(10).toMillis()) // if the job is not completed quick enough, the worker releases the job which can then be picked up by another worker
+                    .timeout(Duration.ofSeconds(WORKER_TIMEOUT).toMillis()) // if the job is not completed quick enough, the worker releases the job which can then be picked up by another worker
                     .open();
 
             Thread.sleep(10000);
 
-            creditCardWorker.close();
+            creditCardChargingWorker.close();
 
         } catch (Exception e) {
             e.printStackTrace();

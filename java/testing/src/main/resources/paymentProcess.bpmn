@@ -36,14 +36,14 @@
     </bpmn:extensionElements>
     <bpmn:serviceTask id="Task_DeductCredit" name="Deduct credit">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="credit-deduction" />
+        <zeebe:taskDefinition type="deductCredit" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_00blf5e</bpmn:incoming>
       <bpmn:outgoing>Flow_0d7r970</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Task_ChargeCreditCard" name="Charge credit card">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="credit-card-charging" />
+        <zeebe:taskDefinition type="chargeCreditCard" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_05xlz7m</bpmn:incoming>
       <bpmn:outgoing>Flow_0am0w3r</bpmn:outgoing>
