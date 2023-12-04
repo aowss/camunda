@@ -78,7 +78,9 @@ It should therefore have no dependency on any Camunda classes.
 
 * Use the https://docs.camunda.io/docs/components/modeler/bpmn/error-events/[BPMN Error event] for business errors and https://docs.camunda.io/docs/components/concepts/incidents/[Camunda Incidents] for technical errors
 
-In particular, use Camunda's built-in https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/#leveraging-retries[retry mechanism].
+Do not model the retries of service tasks into the BPMN model as mentioned in https://camunda.com/blog/2021/04/where-is-the-retry-in-bpmn-20/[Where is the “retry” in BPMN 2.0?].
+
+Use Camunda's built-in https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/#leveraging-retries[retry mechanism].
 
 * Follow Camunda's https://docs.camunda.io/docs/components/best-practices/modeling/naming-technically-relevant-ids/#using-naming-conventions-for-bpmn-ids[best practices] regarding ID names
 
