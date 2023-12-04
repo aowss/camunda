@@ -1,0 +1,58 @@
+:figure-caption!:
+:source-highlighter: highlight.js
+:source-language: java
+:imagesdir: res
+:toc2:
+
+= Service Orchestration
+
+.Process
+image::paymentProcess.png[Process, 430, 240, role="thumb"]
+
+This example shows:
+
+* how to _wire_ a service task:
+
+[cols="2a,2a"]
+|===
+|Service Task Definition |Code
+
+|
+image::ServiceTask-Definition.png[Task Definition]
+|
+
+.`Main.java`
+----
+var handler = new CreditCardChargingHandler();
+
+client.newWorker()
+    .jobType("chargeCreditCard")
+    .handler(handler)
+    .timeout(10000)
+    .open();
+----
+|===
+
+* how to handle a task
+
+.`CreditCardChargingHandler.java`
+----
+@Override
+public void handle(JobClient client, ActivatedJob job) throws Exception { <1>
+    var reference = (String) job.getVariable("orderReference"); <2>
+
+    var confirmationNumber = creditCardService.chargeCreditCard(reference); <3>
+
+    var outputVariables = Map.of("confirmation", confirmationNumber); <4>
+
+    client.newCompleteCommand(job.getKey()) <5>
+            .variables(outputVariables) <4>
+            .send()
+            .join();
+}
+----
+<1> Implement the ``JobHandler``'s `handle` method
+<2> Get variables from the `ActivatedJob`
+<3> Call the service
+<4> Add job's output to the ``ActivatedJob``'s variables
+<5> Notify the engine that the job completed successfully
