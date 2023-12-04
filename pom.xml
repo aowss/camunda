@@ -20,7 +20,6 @@
         <java.version>21</java.version>
         <maven-compiler.version>3.11.0</maven-compiler.version>
         <maven-surefire.version>3.2.2</maven-surefire.version>
-<!--        <maven-dependency-check.version>9.0.2</maven-dependency-check.version>-->
         <camunda.version>8.3.1</camunda.version>
         <sl4j.verion>2.0.9</sl4j.verion>
         <junit.version>5.10.1</junit.version>
@@ -74,23 +73,6 @@
                     <argLine>--enable-preview</argLine>
                 </configuration>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${maven-dependency-check.version}</version>
-                <configuration>
-                    <nvdApiKey>4d424cae-8bea-4cd1-97e9-0698934da5c0</nvdApiKey>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
         </plugins>
     </build>
 </project>
