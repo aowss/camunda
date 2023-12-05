@@ -13,6 +13,7 @@
 
     <modules>
         <module>java</module>
+        <module>spring-boot</module>
     </modules>
 
     <properties>

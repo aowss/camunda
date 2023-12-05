@@ -1,4 +1,6 @@
 :figure-caption!:
+:source-highlighter: highlight.js
+:source-language: java
 :imagesdir: res
 :toc2:
 
@@ -122,9 +124,18 @@ If you don't do that and use assertions about BPMN elements that are after the s
 
 === Testing
 
+* How can we test that a task exited through the boundary event ?
+
+.Not working
+----
+assertThat(processInstance)
+    .hasPassedElement("BoundaryEvent_InvalidCardExpiryDate")
+----
+
+==== Java
+
 * How can we avoid redeploying the BPMN diagram before each test ?
 
-[source, java]
 ----
 @ZeebeProcessTest
 public class ProcessTest {

@@ -1,0 +1,107 @@
+:figure-caption!:
+:source-highlighter: highlight.js
+:source-language: java
+:imagesdir: res
+:toc2:
+
+= Error Handling
+
+.Process
+image::paymentProcess.png[Process, role="thumb"]
+
+This example shows:
+
+* how to configure the client
+
+[cols="2a,2a"]
+|===
+|Java |Spring Boot
+|
+.`Main.java`
+----
+String ZEEBE_ADDRESS = "...";
+String ZEEBE_CLIENT_ID = "...";
+String ZEEBE_CLIENT_SECRET = "...";
+String ZEEBE_AUTHORIZATION_SERVER_URL = "...";
+String ZEEBE_TOKEN_AUDIENCE = "...";
+
+var credentialsProvider = new OAuthCredentialsProviderBuilder()
+    .authorizationServerUrl(ZEEBE_AUTHORIZATION_SERVER_URL)
+    .audience(ZEEBE_TOKEN_AUDIENCE)
+    .clientId(ZEEBE_CLIENT_ID)
+    .clientSecret(ZEEBE_CLIENT_SECRET)
+    .build();
+
+ZeebeClient client = ZeebeClient.newClientBuilder()
+                     .gatewayAddress(ZEEBE_ADDRESS)
+                     .credentialsProvider(credentialsProvider)
+                     .build())
+----
+|
+[source, yaml]
+.`application.yaml`
+----
+zeebe.client:
+  cloud:
+    region: ...
+    clusterId: ...
+    clientId: ...
+    clientSecret: ...
+----
+|===
+
+* how to deploy process
+
+@SpringBootApplication
+@EnableZeebeClient
+@Deployment(resources = "classpath*:*.bpmn")
+
+
+* how to _wire_ a service task:
+
+[cols="1, 2a,2a"]
+|===
+||Java |Spring Boot
+
+|
+.`Main.java`
+----
+final var credentialsProvider = new OAuthCredentialsProviderBuilder()
+    .authorizationServerUrl(ZEEBE_AUTHORIZATION_SERVER_URL)
+    .audience(ZEEBE_TOKEN_AUDIENCE)
+    .clientId(ZEEBE_CLIENT_ID)
+    .clientSecret(ZEEBE_CLIENT_SECRET)
+    .build();
+
+final ZeebeClient client = ZeebeClient.newClientBuilder()
+                     .gatewayAddress(ZEEBE_ADDRESS)
+                     .credentialsProvider(credentialsProvider)
+                     .build())
+----
+|===
+
+* how to handle a task
+
+.`CreditCardChargingHandler.java`
+----
+@Override
+public void handle(JobClient client, ActivatedJob job) throws Exception { <1>
+    var reference = (String) job.getVariable("orderReference"); <2>
+
+    var confirmationNumber = creditCardService.chargeCreditCard(reference); <3>
+
+    var outputVariables = Map.of("confirmation", confirmationNumber); <4>
+
+    client.newCompleteCommand(job.getKey()) <5>
+            .variables(outputVariables) <4>
+            .send()
+            .join();
+}
+----
+<1> Implement the ``JobHandler``'s `handle` method
+<2> Get variables from the `ActivatedJob`
+<3> Call the service
+<4> Add job's output to the ``ActivatedJob``'s variables
+<5> Notify the engine that the job completed successfully
+
+@JobWorker(type = "send-rejection")
