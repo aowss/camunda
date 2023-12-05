@@ -2,7 +2,7 @@
 :source-highlighter: highlight.js
 :source-language: java
 :imagesdir: res
-:toc2:
+:toc:
 
 = Error Handling
 
@@ -11,13 +11,12 @@ image::paymentProcess.png[Process, role="thumb"]
 
 This example shows:
 
-* how to configure the client
-
-[cols="2a,2a"]
+.How to configure the client
+[cols=".^1h, 10a"]
 |===
-|Java |Spring Boot
-|
-.`Main.java`
+|Java|
+
+.`PaymentApplication.java`
 ----
 String ZEEBE_ADDRESS = "...";
 String ZEEBE_CLIENT_ID = "...";
@@ -32,12 +31,19 @@ var credentialsProvider = new OAuthCredentialsProviderBuilder()
     .clientSecret(ZEEBE_CLIENT_SECRET)
     .build();
 
-ZeebeClient client = ZeebeClient.newClientBuilder()
-                     .gatewayAddress(ZEEBE_ADDRESS)
-                     .credentialsProvider(credentialsProvider)
-                     .build())
+ZeebeClient client = ZeebeClient
+    .newClientBuilder()
+    .gatewayAddress(ZEEBE_ADDRESS)
+    .credentialsProvider(credentialsProvider)
+    .build());
+
+...
+
+client.close();
 ----
-|
+
+|Spring Boot|
+
 [source, yaml]
 .`application.yaml`
 ----
@@ -48,54 +54,92 @@ zeebe.client:
     clientId: ...
     clientSecret: ...
 ----
-|===
 
-* how to deploy process
-
+.`PaymentApplication.java`
+----
 @SpringBootApplication
 @EnableZeebeClient
+public class PaymentApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentApplication.class, args);
+    }
+}
+----
+|===
+
+.How to deploy process
+[cols=".^1h, 10a"]
+|===
+|Java|
+
+.`PaymentApplication.java`
+----
+client.newCreateInstanceCommand()
+    .bpmnProcessId("paymentProcess")
+    .latestVersion()
+    .send()
+    .join();
+----
+
+|Spring Boot|
+
+.`PaymentApplication.java`
+----
 @Deployment(resources = "classpath*:*.bpmn")
-
-
-* how to _wire_ a service task:
-
-[cols="1, 2a,2a"]
-|===
-||Java |Spring Boot
-
-|
-.`Main.java`
-----
-final var credentialsProvider = new OAuthCredentialsProviderBuilder()
-    .authorizationServerUrl(ZEEBE_AUTHORIZATION_SERVER_URL)
-    .audience(ZEEBE_TOKEN_AUDIENCE)
-    .clientId(ZEEBE_CLIENT_ID)
-    .clientSecret(ZEEBE_CLIENT_SECRET)
-    .build();
-
-final ZeebeClient client = ZeebeClient.newClientBuilder()
-                     .gatewayAddress(ZEEBE_ADDRESS)
-                     .credentialsProvider(credentialsProvider)
-                     .build())
+public class PaymentApplication
 ----
 |===
 
-* how to handle a task
+.How to  _wire_ a service task
+[cols=".^1h, 10a"]
+|===
+|Java|
+
+.`PaymentApplication.java`
+----
+var worker = client.newWorker()
+    .jobType("chargeCreditCard")
+    .handler(new CreditCardChargingHandler())
+    .timeout(10000)
+    .open();
+
+...
+
+worker.close();
+----
+
+|Spring Boot|
 
 .`CreditCardChargingHandler.java`
 ----
-@Override
-public void handle(JobClient client, ActivatedJob job) throws Exception { <1>
-    var reference = (String) job.getVariable("orderReference"); <2>
+@JobWorker(type = "chargeCreditCard")
+public void handle(ActivatedJob job) {
+    ...
+}
+----
+|===
 
-    var confirmationNumber = creditCardService.chargeCreditCard(reference); <3>
+.How to handle a task
+[cols=".^1h, 10a"]
+|===
+|Java|
 
-    var outputVariables = Map.of("confirmation", confirmationNumber); <4>
+.`CreditCardChargingHandler.java`
+----
+public class CreditCardChargingHandler implements JobHandler {
+    @Override
+    public void handle(JobClient client, ActivatedJob job) throws Exception { <1>
+        var reference = (String) job.getVariable("orderReference"); <2>
 
-    client.newCompleteCommand(job.getKey()) <5>
-            .variables(outputVariables) <4>
-            .send()
-            .join();
+        var confirmationNumber = creditCardService.chargeCreditCard(reference); <3>
+
+        var outputVariables = Map.of("confirmation", confirmationNumber); <4>
+
+        client.newCompleteCommand(job.getKey()) <5>
+                .variables(outputVariables) <4>
+                .send()
+                .join();
+    }
 }
 ----
 <1> Implement the ``JobHandler``'s `handle` method
@@ -104,4 +148,80 @@ public void handle(JobClient client, ActivatedJob job) throws Exception { <1>
 <4> Add job's output to the ``ActivatedJob``'s variables
 <5> Notify the engine that the job completed successfully
 
-@JobWorker(type = "send-rejection")
+|Spring Boot|
+
+----
+@JobWorker(type = "chargeCreditCard", autoComplete = true) <1> <5>
+public Map<String, Object> handle(ActivatedJob job) throws CreditCardServiceException {
+    var reference = (String) job.getVariable("orderReference"); <2>
+
+    var confirmationNumber = creditCardService.chargeCreditCard(reference, amount, creditCard); <3>
+
+    return Map.of("confirmation", confirmationNumber); <4>
+}
+----
+<1> No need to implement any interface
+<2> Get variables from the `ActivatedJob`
+<3> Call the service
+<4> Returning a Map will automatically add the job's output to the ``ActivatedJob``'s variables
+<5> The `autoComplete = true` element in the annotation automatically notifies the engine that the job completed successfully
+|===
+
+.How to handle errors
+[cols=".^1h, 10a"]
+|===
+|Java|
+
+.`CreditCardChargingHandler.java`
+----
+public void handle(JobClient client, ActivatedJob job) {
+    try {
+        ...
+        var confirmationNumber = creditCardService.chargeCreditCard(reference, amount, creditCard);
+        ...
+    } catch (CreditCardServiceException e) {
+        client.newFailCommand(job) <1>
+                .retries(job.getRetries() - 1) <2>
+                .retryBackoff(Duration.ofSeconds(2)) <3>
+                .errorMessage(e.getMessage()) <4>
+                .send()
+                .join();
+    } catch (InvalidCreditCardException icce) {
+        client.newThrowErrorCommand(job) <5>
+                .errorCode("invalidCreditCardError") <6>
+                .send()
+                .join();
+    }
+}
+----
+<1> Fail the job
+<2> Decrement the number of retries. +
+The number of retries is defined in the BPMN diagram.
+<3> Wait for a given time before retrying
+<4> Specify the error message what will be displayed for this incident in Operate
+<5> Throw a BPMN error that will be handled at the BPMN level
+<6> The error code must be defined in the BPMN diagram
+
+|Spring Boot|
+
+----
+@JobWorker(type = "chargeCreditCard", autoComplete = true)
+public Map<String, Object> handle(ActivatedJob job) throws CreditCardServiceException { <1> <2> <3> <4>
+    try {
+        ...
+        var confirmationNumber = creditCardService.chargeCreditCard(reference, amount, creditCard);
+        ...
+    } catch (InvalidCreditCardException icce) {
+        throw new ZeebeBpmnError("invalidCreditCardException", icce.getMessage()); <5> <6>
+    }
+}
+----
+<1> If an exception is thrown, it fails the job
+<2> The number of retries is decremented automatically. +
+The number of retries is defined in the BPMN diagram.
+<3> Not sure how to configure how to wait for a given time before retrying
+<4> The error message is the exception's message. +
+Not sure how to specify the error message what will be displayed for this incident in Operate.
+<5> Throw a BPMN error that will be handled at the BPMN level
+<6> The error code must be defined in the BPMN diagram
+|===

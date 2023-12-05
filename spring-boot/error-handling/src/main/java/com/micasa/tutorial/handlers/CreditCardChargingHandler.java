@@ -17,25 +17,25 @@ import java.util.Map;
 @Component
 public class CreditCardChargingHandler {
 
-  @Autowired
-  private CreditCardService creditCardService;
+    @Autowired
+    private CreditCardService creditCardService;
 
-  @JobWorker(type = "chargeCreditCard", autoComplete = true)
-  public Map<String, Object> handle(ActivatedJob job) throws CreditCardServiceException {
-    System.out.println("charge credit card [ retries = " + job.getRetries() + " ]");
-    var reference = (String) job.getVariable("orderReference");
-    var amount = (Double) job.getVariable("orderAmount");
-    var creditCard = new CreditCard(
-            (String) job.getVariable("cardNumber"),
-            YearMonth.parse((String) job.getVariable("cardExpiry"), DateTimeFormatter.ofPattern("MM/yyyy")),
-            (String) job.getVariable("cardCVC")
-    );
+    @JobWorker(type = "chargeCreditCard", autoComplete = true)
+    public Map<String, Object> handle(ActivatedJob job) throws CreditCardServiceException {
+        System.out.println("charge credit card [ retries = " + job.getRetries() + " ]");
+        var reference = (String) job.getVariable("orderReference");
+        var amount = (Double) job.getVariable("orderAmount");
+        var creditCard = new CreditCard(
+                (String) job.getVariable("cardNumber"),
+                YearMonth.parse((String) job.getVariable("cardExpiry"), DateTimeFormatter.ofPattern("MM/yyyy")),
+                (String) job.getVariable("cardCVC")
+        );
 
-    try {
-      var confirmationNumber = creditCardService.chargeCreditCard(reference, amount, creditCard);
-      return Map.of("confirmation", confirmationNumber);
-    } catch (InvalidCreditCardException icce) {
-      throw new ZeebeBpmnError("invalidCreditCardException", icce.getMessage());
+        try {
+            var confirmationNumber = creditCardService.chargeCreditCard(reference, amount, creditCard);
+            return Map.of("confirmation", confirmationNumber);
+        } catch (InvalidCreditCardException icce) {
+            throw new ZeebeBpmnError("invalidCreditCardException", icce.getMessage());
+        }
     }
-  }
 }
