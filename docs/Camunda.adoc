@@ -47,6 +47,10 @@ It is based on https://www.keycloak.org/[Keycloak].
 
 * In the Self-Managed deployment option, the Web Modeler is available for Enterprise customers
 
+=== Connectors
+
+* https://docs.camunda.io/docs/components/connectors/use-connectors/[Connectors] use https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/[secrets] to avoid exposing sensitive information
+
 == Best Practices
 
 === Development
@@ -72,13 +76,15 @@ Access to Operate and Optimize is not needed for the workers.
 
 It should therefore have no dependency on any Camunda classes.
 
+* We will use the https://docs.camunda.io/docs/components/connectors/protocol/rest/[REST Connector] and Camunda https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/[secrets] to communicate with our micro-services
+
 === Deployment
 
 === Modeler
 
 * Use the https://docs.camunda.io/docs/components/modeler/web-modeler/new-web-modeler/[Web Modeler] to take advantage of its collaboration features
 
-* Use the https://docs.camunda.io/docs/components/modeler/bpmn/error-events/[BPMN Error event] for business errors and https://docs.camunda.io/docs/components/concepts/incidents/[Camunda Incidents] for technical errors
+* Use https://docs.camunda.io/docs/components/concepts/incidents/[Camunda Incidents] for technical errors
 
 Do not model the retries of service tasks into the BPMN model as mentioned in https://camunda.com/blog/2021/04/where-is-the-retry-in-bpmn-20/[Where is the “retry” in BPMN 2.0?].
 
@@ -93,6 +99,8 @@ This is very important because these names are needed in the tests and are logge
 This helps in communicating with other stakeholders.
 
 * Use camel case for service tasks' task definition
+
+* Use the https://github.com/camunda/camunda-modeler-token-simulation-plugin[Token Simulation] plugin to make sure the process is correct
 
 === Tasklist
 

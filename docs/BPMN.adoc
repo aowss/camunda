@@ -1,0 +1,54 @@
+:figure-caption!:
+:source-highlighter: highlight.js
+:source-language: java
+:imagesdir: res
+:toc2:
+
+= BPMN
+
+== Models
+
+[cols="1, 3a, 3a", headers]
+|===
+||Strategic |Operational
+
+| Target | Business | Engine
+| Goal | Communicate | Execute
+
+| Type
+| Abstract:
+
+* This is a bird's eye view of the process
+* Compact, easy to read and understand
+* No complicated constructs footnote:[e.g. no need to close gateways]
+* Tasks are undefined
+* Lanes can be used to show responsibilities
+
+| Concrete:
+
+* This is an executable process
+* Every task is defined and bound to code if required
+* No Lanes
+
+|===
+
+Use both type of processes: strategic first to validate understanding and then operational for execution.
+
+== Events
+
+* Use the https://docs.camunda.io/docs/components/modeler/bpmn/error-events/[BPMN Error event] for business errors
+
+* Use None Intermediate events to model KPIs or milestones that can be tracked
+
+* Use multiple None End events to illustrate different outcomes to help with metrics collection
+
+* Use gateways to clarify the flow, a.k.a. explicit modeling footnote:[avoid implicit input XOR; avoid implicit output AND; use explicit OR gateway instead of conditional flow]
+* Use merging gateways to make the process more readable
+* Use synchronizing parallel gateways to avoid repeating tasks footnote:[or keeping the processing alive when it should be done]
+
+* Use separate gateways for merging and splitting
+
+== Resources
+
+. https://docs.camunda.io/docs/components/best-practices/best-practices-overview/[Camunda 8 Docs - Modeling Best Practices]
+. https://academy.camunda.com/page/bpmn[Camunda Academy: BPMN]
