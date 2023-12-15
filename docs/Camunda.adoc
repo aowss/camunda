@@ -76,13 +76,15 @@ Access to Operate and Optimize is not needed for the workers.
 
 It should therefore have no dependency on any Camunda classes.
 
-* We will use the https://docs.camunda.io/docs/components/connectors/protocol/rest/[REST Connector] and Camunda https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/[secrets] to communicate with our micro-services
+* Use the https://docs.camunda.io/docs/components/connectors/protocol/rest/[REST Connector] and Camunda https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/[secrets] to communicate with micro-services
+
+See https://forum.camunda.io/t/rest-connector-in-desktop-modeler/40529/2[this post] on how to configure the REST Connector in the https://docs.camunda.io/docs/components/modeler/desktop-modeler/[Desktop Modeler].
 
 === Deployment
 
 === Modeler
 
-* Use the https://docs.camunda.io/docs/components/modeler/web-modeler/new-web-modeler/[Web Modeler] to take advantage of its collaboration features
+* Use the https://docs.camunda.io/docs/components/modeler/web-modeler/new-web-modeler/[Web Modeler] if possible to take advantage of its collaboration features
 
 * Use https://docs.camunda.io/docs/components/concepts/incidents/[Camunda Incidents] for technical errors
 
