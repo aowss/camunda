@@ -21,7 +21,7 @@ import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcess
 @SpringBootTest
 @ZeebeSpringTest
 @DisplayName("Payment Process Test")
-public class PaymentProcessTest {
+class PaymentProcessTest {
 
     @Autowired
     private ZeebeTestEngine engine;
@@ -31,7 +31,7 @@ public class PaymentProcessTest {
 
     @Test
     @DisplayName("Successful payment")
-    public void success() throws Exception {
+    void success() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "Order-1",
@@ -54,7 +54,7 @@ public class PaymentProcessTest {
 
     @Test
     @DisplayName("Unexpected handler failure -> incident")
-    public void failure() throws Exception {
+    void failure() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
             "cardExpiry", "01/2026",
@@ -76,7 +76,7 @@ public class PaymentProcessTest {
 
     @Test
     @DisplayName("Service failure -> incident")
-    public void incident() throws Exception {
+    void incident() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "invalid",
@@ -99,7 +99,7 @@ public class PaymentProcessTest {
 
     @Test
     @DisplayName("Invalid expiry date -> BPMN Error with fix")
-    public void errorWithFix() throws Exception {
+    void errorWithFix() throws Exception {
         Map<String, Object> variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "Order-1",
@@ -137,7 +137,7 @@ public class PaymentProcessTest {
 
     @Test
     @DisplayName("Invalid expiry date -> BPMN Error without fix")
-    public void errorWithoutFix() throws Exception {
+    void errorWithoutFix() throws Exception {
         Map<String, Object> variables = Map.of(
                 "orderAmount", 60.0,
                 "orderReference", "Order-1",

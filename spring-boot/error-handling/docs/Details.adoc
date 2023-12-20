@@ -67,7 +67,7 @@ public class PaymentApplication {
 ----
 |===
 
-.How to deploy process
+.How to deploy the process
 [cols=".^1h, 10a"]
 |===
 |Java|
@@ -221,7 +221,8 @@ public Map<String, Object> handle(ActivatedJob job) throws CreditCardServiceExce
 The number of retries is defined in the BPMN diagram.
 <3> Not sure how to configure how to wait for a given time before retrying
 <4> The error message is the exception's message. +
-Not sure how to specify the error message what will be displayed for this incident in Operate.
-<5> Throw a BPMN error that will be handled at the BPMN level
+Not sure how to specify the error message that will be displayed for this incident in Operate.
+<5> Throw a BPMN error that will be handled at the BPMN level. +
+`<bpmn:error id="Error_CardExpiryDate" name="Card Expiry Date Error " errorCode="invalidCreditCardException" />`
 <6> The error code must be defined in the BPMN diagram
 |===
