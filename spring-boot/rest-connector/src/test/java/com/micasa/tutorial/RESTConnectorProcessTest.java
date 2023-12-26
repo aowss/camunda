@@ -1,6 +1,6 @@
 package com.micasa.tutorial;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.micasa.tutorial.model.ExchangeRateRequest;
 import com.micasa.tutorial.start.ZeebeController;
 import io.camunda.zeebe.client.api.response.PublishMessageResponse;
@@ -8,13 +8,12 @@ import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import io.camunda.connector.e2e.app.TestConnectorRuntimeApplication;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(
     classes = { TestConnectorRuntimeApplication.class, Application.class },
@@ -22,20 +21,10 @@ import io.camunda.connector.e2e.app.TestConnectorRuntimeApplication;
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ZeebeSpringTest
+@WireMockTest(httpPort = 9999)
+@ActiveProfiles("test")
 @DisplayName("REST Connector Test")
 class RESTConnectorProcessTest {
-
-    @RegisterExtension
-    WireMockExtension wm = WireMockExtension.newInstance()
-            .options(wireMockConfig().bindAddress("127.0.0.1").port(9999))
-            .proxyMode(true)
-            .build();
-
-//    @Autowired
-//    private ZeebeTestEngine engine;
-//
-//    @Autowired
-//    private ZeebeClient client;
 
     @Autowired
     private ZeebeController controller;
@@ -43,10 +32,24 @@ class RESTConnectorProcessTest {
     @Test
     @DisplayName("Using the Zeebe Controller")
     void zeebeController() throws Exception {
-        wm.stubFor(
-            get("/api")
-                .withHost(equalTo("prod-rates"))
-                .willReturn(ok())
+        stubFor(
+            get(urlPathEqualTo("/exchangeRates"))
+                .withQueryParam("fromCurrency", equalTo("USD"))
+                .withQueryParam("toCurrency", equalTo("CAD"))
+                .withQueryParam("amount", equalTo("1000"))
+            .willReturn(
+                okJson("""
+                    {
+                        "from": "USD",
+                        "to": "CAD,
+                        "rate": 1.32466,
+                        "time": "2023-12-26T12:58.30Z",
+                        "fromAmount": 500,
+                        "toAmount": 662.33
+                    }
+                    """
+                )
+            )
         );
 
         PublishMessageResponse response = controller.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
@@ -55,19 +58,12 @@ class RESTConnectorProcessTest {
                 .hasCreatedProcessInstance()
                 .extractingProcessInstance()
                 .hasPassedElement("Start_ExchangeRateRequest")
-                .hasVariableWithValue("apiURL", "http://prod-rates:9999/api")
+                .hasVariableWithValue("apiURL", "http://localhost:9999/exchangeRates")
                 .hasVariableWithValue("toCurrency", "CAD")
                 .hasVariableWithValue("fromCurrency", "USD")
                 .hasVariableWithValue("fromAmount", 1000)
                 .isWaitingAtElements("Task_CallExchangeRateAPI")
-//                .hasAnyIncidents()
-                .isActive();
-//                .hasNotPassedElement(REMIND_REVIEWER)
-//                .hasNotPassedElement(MAKE_CHANGES)
-//                .hasVariableWithValue(REVIEW_RESULT_VAR, "approved")
-//                .extractingLatestCalledProcess()
-//                .hasPassedElement(AUTOMATED_TESTS_RUN_TESTS, 3)
-//                .isCompleted();
+                .isCompleted();
     }
 
 }

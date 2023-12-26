@@ -20,4 +20,4 @@ camunda:
       enabled: true
 
 api:
-  url: http://${ENV:prod}-rates:9999/api
+  url: http://${ENV:prod}-rates:9999/exchangeRates
