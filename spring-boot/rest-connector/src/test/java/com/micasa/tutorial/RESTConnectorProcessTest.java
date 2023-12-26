@@ -15,11 +15,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import io.camunda.connector.e2e.app.TestConnectorRuntimeApplication;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(
-    classes = { TestConnectorRuntimeApplication.class, Application.class },
-    properties = { "spring.main.allow-bean-definition-overriding=true", "camunda.connector.polling.enabled=true" },
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(classes = { TestConnectorRuntimeApplication.class, Application.class })
 @ZeebeSpringTest
 @WireMockTest(httpPort = 9999)
 @ActiveProfiles("test")
@@ -41,7 +37,7 @@ class RESTConnectorProcessTest {
                 okJson("""
                     {
                         "from": "USD",
-                        "to": "CAD,
+                        "to": "CAD",
                         "rate": 1.32466,
                         "time": "2023-12-26T12:58.30Z",
                         "fromAmount": 500,
@@ -63,6 +59,7 @@ class RESTConnectorProcessTest {
                 .hasVariableWithValue("fromCurrency", "USD")
                 .hasVariableWithValue("fromAmount", 1000)
                 .isWaitingAtElements("Task_CallExchangeRateAPI")
+                .hasVariableWithValue("currentRate", 1.32466)
                 .isCompleted();
     }
 
