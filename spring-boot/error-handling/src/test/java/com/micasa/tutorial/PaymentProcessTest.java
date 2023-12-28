@@ -4,7 +4,6 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcess
 @SpringBootTest
 @ZeebeSpringTest
 @DisplayName("Payment Process Test")
-public class PaymentProcessTest {
+class PaymentProcessTest {
 
     @Autowired
     private ZeebeTestEngine engine;
@@ -31,7 +30,7 @@ public class PaymentProcessTest {
 
     @Test
     @DisplayName("Successful payment")
-    public void success() throws Exception {
+    void success() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "Order-1",
@@ -41,9 +40,6 @@ public class PaymentProcessTest {
         );
 
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
-//        engine.waitForIdleState(Duration.ofSeconds(1));
         waitForProcessInstanceCompleted(processInstance);
 
         assertThat(processInstance)
@@ -53,8 +49,8 @@ public class PaymentProcessTest {
     }
 
     @Test
-    @DisplayName("Unexpected handler failure -> incident")
-    public void failure() throws Exception {
+    @DisplayName("Unexpected handler failure, e.g. missing field -> incident")
+    void failure() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
             "cardExpiry", "01/2026",
@@ -62,21 +58,19 @@ public class PaymentProcessTest {
             "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(10));
 
         assertThat(processInstance)
                 .hasNotPassedElement("Task_ChargeCreditCard")
-                .hasNotPassedElement("EndEvent_PaymentCompleted")
-                .hasAnyIncidents();
+                .hasNotPassedElement("EndEvent_PaymentCompleted");
+
+        checkAndResolveIncident(processInstance, client, "The variable orderReference is not available");
     }
 
     @Test
     @DisplayName("Service failure -> incident")
-    public void incident() throws Exception {
+    void incident() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "invalid",
@@ -85,21 +79,19 @@ public class PaymentProcessTest {
             "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(10));
 
         assertThat(processInstance)
                 .hasNotPassedElement("Task_ChargeCreditCard")
-                .hasNotPassedElement("EndEvent_PaymentCompleted")
-                .hasAnyIncidents();
+                .hasNotPassedElement("EndEvent_PaymentCompleted");
+
+        checkAndResolveIncident(processInstance, client, "The transaction number is invalid: invalid");
     }
 
     @Test
     @DisplayName("Invalid expiry date -> BPMN Error with fix")
-    public void errorWithFix() throws Exception {
+    void errorWithFix() throws Exception {
         Map<String, Object> variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "Order-1",
@@ -108,10 +100,7 @@ public class PaymentProcessTest {
             "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));
 
         assertThat(processInstance)
@@ -132,12 +121,11 @@ public class PaymentProcessTest {
                 .hasPassedElement("EndEvent_PaymentCompleted")
                 .hasNoIncidents()
                 .isCompleted();
-
     }
 
     @Test
     @DisplayName("Invalid expiry date -> BPMN Error without fix")
-    public void errorWithoutFix() throws Exception {
+    void errorWithoutFix() throws Exception {
         Map<String, Object> variables = Map.of(
                 "orderAmount", 60.0,
                 "orderReference", "Order-1",
@@ -146,10 +134,7 @@ public class PaymentProcessTest {
                 "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));
 
         assertThat(processInstance)
@@ -170,7 +155,6 @@ public class PaymentProcessTest {
                 .hasPassedElement("EndEvent_PaymentCancelled")
                 .hasNoIncidents()
                 .isCompleted();
-
     }
 
 }
