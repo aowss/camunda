@@ -9,6 +9,8 @@ import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 
 import java.util.Map;
 
+import static io.camunda.zeebe.process.test.assertions.BpmnAssert.assertThat;
+
 public class Utils {
 
     private static final String USER_TASK = "io.camunda.zeebe:userTask";
@@ -63,6 +65,23 @@ public class Utils {
                 .variables(variables)
                 .send()
                 .join();
+    }
+
+    public static void checkAndResolveIncident(ProcessInstanceEvent processInstance, ZeebeClient client, String message) {
+        var incident = assertThat(processInstance)
+                .extractingLatestIncident();
+
+        incident.extractingErrorMessage()
+                .contains(message);
+
+        incident.isUnresolved();
+
+        client
+                .newResolveIncidentCommand(incident.getIncidentKey())
+                .send()
+                .join();
+
+        incident.isResolved();
     }
 
 }

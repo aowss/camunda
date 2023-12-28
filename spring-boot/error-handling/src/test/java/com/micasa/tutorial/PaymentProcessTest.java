@@ -4,7 +4,6 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +40,6 @@ class PaymentProcessTest {
         );
 
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
-//        engine.waitForIdleState(Duration.ofSeconds(1));
         waitForProcessInstanceCompleted(processInstance);
 
         assertThat(processInstance)
@@ -53,7 +49,7 @@ class PaymentProcessTest {
     }
 
     @Test
-    @DisplayName("Unexpected handler failure -> incident")
+    @DisplayName("Unexpected handler failure, e.g. missing field -> incident")
     void failure() throws Exception {
         var variables = Map.of(
             "orderAmount", 60.0,
@@ -62,16 +58,14 @@ class PaymentProcessTest {
             "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(10));
 
         assertThat(processInstance)
                 .hasNotPassedElement("Task_ChargeCreditCard")
-                .hasNotPassedElement("EndEvent_PaymentCompleted")
-                .hasAnyIncidents();
+                .hasNotPassedElement("EndEvent_PaymentCompleted");
+
+        checkAndResolveIncident(processInstance, client, "The variable orderReference is not available");
     }
 
     @Test
@@ -85,16 +79,14 @@ class PaymentProcessTest {
             "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(10));
 
         assertThat(processInstance)
                 .hasNotPassedElement("Task_ChargeCreditCard")
-                .hasNotPassedElement("EndEvent_PaymentCompleted")
-                .hasAnyIncidents();
+                .hasNotPassedElement("EndEvent_PaymentCompleted");
+
+        checkAndResolveIncident(processInstance, client, "The transaction number is invalid: invalid");
     }
 
     @Test
@@ -108,10 +100,7 @@ class PaymentProcessTest {
             "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));
 
         assertThat(processInstance)
@@ -132,7 +121,6 @@ class PaymentProcessTest {
                 .hasPassedElement("EndEvent_PaymentCompleted")
                 .hasNoIncidents()
                 .isCompleted();
-
     }
 
     @Test
@@ -146,10 +134,7 @@ class PaymentProcessTest {
                 "cardCVC", "111"
         );
 
-        //  Start the process after the Deduct Credit task
         ProcessInstanceEvent processInstance = startProcess(client, "PaymentProcess", variables);
-
-        //  Wait for the engine to progress through the flow
         engine.waitForIdleState(Duration.ofSeconds(1));
 
         assertThat(processInstance)
@@ -170,7 +155,6 @@ class PaymentProcessTest {
                 .hasPassedElement("EndEvent_PaymentCancelled")
                 .hasNoIncidents()
                 .isCompleted();
-
     }
 
 }
