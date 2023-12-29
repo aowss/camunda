@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <spring-boot.version>3.1.5</spring-boot.version>
+<!--        <spring-boot.version>3.1.5</spring-boot.version>-->
     </properties>
 
     <modules>
@@ -24,11 +24,6 @@
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>io.camunda.spring</groupId>
-            <artifactId>spring-boot-starter-camunda</artifactId>
-            <version>${camunda.version}</version>
-        </dependency>
         <dependency>
             <groupId>io.camunda.spring</groupId>
             <artifactId>spring-boot-starter-camunda-test</artifactId>

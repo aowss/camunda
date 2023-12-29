@@ -1,5 +1,6 @@
 package com.micasa.tutorial;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.micasa.tutorial.model.ExchangeRateRequest;
 import com.micasa.tutorial.start.ZeebeController;
@@ -12,10 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import io.camunda.connector.e2e.app.TestConnectorRuntimeApplication;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = { TestConnectorRuntimeApplication.class, Application.class })
+@SpringBootTest
 @ZeebeSpringTest
 @WireMockTest(httpPort = 9999)
 @ActiveProfiles("test")
