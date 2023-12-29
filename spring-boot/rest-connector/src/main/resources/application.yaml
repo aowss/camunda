@@ -9,15 +9,13 @@ zeebe:
       clientId: jMNcIFp.GJ1-ZYK~Av-8zLHM7xmYCTLs
       clientSecret: dbz--V.YX9JzRzF_44iL9DNz.h0_1S-qpPbl~2xYt6f0ua5h3CWQ2wVulQ68b-Rm
 
-connectors:
-  enabled: true
-
+# See https://github.com/camunda/connectors/tree/main/connector-runtime/spring-boot-starter-camunda-connectors
 camunda:
-  connectors:
-    enabled: true
   connector:
     polling:
-      enabled: true
+      enabled: false
+    webhook:
+      enabled: false
 
 api:
   url: http://${ENV:prod}-rates:9999/exchangeRates
