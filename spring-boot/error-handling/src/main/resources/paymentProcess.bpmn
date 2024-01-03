@@ -98,7 +98,7 @@
     <bpmn:sequenceFlow id="Flow_chargeCreditCard-paymentSuccessful" sourceRef="Task_ChargeCreditCard" targetRef="EndEvent_PaymentCompleted" />
     <bpmn:boundaryEvent id="BoundaryEvent_InvalidCardExpiryDate" name="Invalid Card Expiry Date" attachedToRef="Task_ChargeCreditCard">
       <bpmn:outgoing>Flow_00zdqb3</bpmn:outgoing>
-      <bpmn:errorEventDefinition id="ErrorEventDefinition_1hlamdh" errorRef="Error_0jfs72p" />
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1hlamdh" errorRef="Error_CardExpiryDate" />
     </bpmn:boundaryEvent>
     <bpmn:userTask id="Task_ReviewCreditCard" name="Review Credit Card Details">
       <bpmn:extensionElements>
@@ -124,7 +124,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=isValidCreditCard = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
-  <bpmn:error id="Error_0jfs72p" name="Card Expiry Date Error " errorCode="invalidCreditCardException" />
+  <bpmn:error id="Error_CardExpiryDate" name="Card Expiry Date Error " errorCode="invalidCreditCardException" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PaymentProcess">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_PaymentRequired">

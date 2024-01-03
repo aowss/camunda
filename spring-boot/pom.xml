@@ -14,15 +14,21 @@
     <name>spring-boot</name>
     <packaging>pom</packaging>
 
+    <properties>
+<!--        <spring-boot.version>3.1.5</spring-boot.version>-->
+    </properties>
+
     <modules>
         <module>error-handling</module>
+        <module>rest-connector</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>io.camunda.spring</groupId>
-            <artifactId>spring-boot-starter-camunda</artifactId>
+            <artifactId>spring-boot-starter-camunda-test</artifactId>
             <version>${camunda.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

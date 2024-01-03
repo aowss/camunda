@@ -9,16 +9,27 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>camunda-spring-boot-error-handling</artifactId>
+    <artifactId>camunda-spring-boot-rest-connector</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>error-handling</name>
+    <name>rest-connector</name>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>io.camunda.spring</groupId>
-            <artifactId>spring-boot-starter-camunda</artifactId>
+            <groupId>io.camunda.connector</groupId>
+            <artifactId>spring-boot-starter-camunda-connectors</artifactId>
             <version>${camunda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.camunda.connector</groupId>
+            <artifactId>connector-http-json</artifactId>
+            <version>${camunda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.camunda.connector</groupId>
+            <artifactId>connector-test</artifactId>
+            <version>${camunda.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
