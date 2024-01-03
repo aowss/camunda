@@ -1,10 +1,8 @@
 package com.micasa.tutorial;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.micasa.tutorial.model.ExchangeRateRequest;
 import com.micasa.tutorial.start.ZeebeController;
-import io.camunda.zeebe.client.api.response.PublishMessageResponse;
 import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.process.test.inspections.InspectionUtility;
 import io.camunda.zeebe.process.test.inspections.model.InspectedProcessInstance;
@@ -52,7 +50,7 @@ class RESTConnectorProcessTest {
             )
         );
 
-        PublishMessageResponse response = controller.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
+        controller.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()

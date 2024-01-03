@@ -26,7 +26,6 @@
           <zeebe:input source="20" target="connectionTimeoutInSeconds" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
-<!--           <zeebe:header key="resultVariable" value="responseBody" /> -->
           <zeebe:header key="resultExpression" value="={ exchangeRate: response.body.rate }" />
           <zeebe:header key="retryBackoff" value="PT0S" />
         </zeebe:taskHeaders>

@@ -30,7 +30,7 @@ class PaymentProcessTest {
 
     @Test
     @DisplayName("Successful payment")
-    void success() throws Exception {
+    void success() {
         var variables = Map.of(
             "orderAmount", 60.0,
             "orderReference", "Order-1",
