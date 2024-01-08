@@ -120,6 +120,9 @@ The GraphQL API will be deprecated soon as mentioned in https://academy.camunda.
 
 * Every path must be tested and in particular every FEEL expression
 
+Use the https://github.com/camunda-community-hub/camunda-process-test-coverage[Camunda Process Test Coverage] dependency to assess the coverage. If possible use the Sonar Plugin as documented https://camunda-community-hub.github.io/camunda-process-test-coverage/snapshot/getting-started.html#sonarqube-plugin[here].
+The report is located in the `process-test-coverage` folder.
+
 * For system tests, mock external APIs using https://wiremock.org[WireMock] instead of mocking the services using https://github.com/mockito/mockito[Mockito]
 
 * For system tests, start the process from the start and avoid using the `startBeforeElement` API
