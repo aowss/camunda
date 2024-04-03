@@ -21,7 +21,7 @@
         <java.version>21</java.version>
         <maven-compiler.version>3.11.0</maven-compiler.version>
         <maven-surefire.version>3.2.2</maven-surefire.version>
-        <camunda.version>8.3.1</camunda.version>
+        <camunda.version>8.4.2</camunda.version>
         <sl4j.verion>2.0.9</sl4j.verion>
         <junit.version>5.10.1</junit.version>
         <hamcrest.version>2.2</hamcrest.version>

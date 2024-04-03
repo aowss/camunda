@@ -72,7 +72,7 @@ Access to Operate and Optimize is not needed for the workers.
 3. push data back to the `ActivatedJob` variables,
 4. inform the engine of the completion status
 
-* The `services` package's sole responsibility is to communicate with our APIs
+* The `services` package's sole responsibility is to communicate with external APIs or databases
 
 It should therefore have no dependency on any Camunda classes.
 
@@ -108,7 +108,8 @@ This helps in communicating with other stakeholders.
 
 * Use the Tasklist https://docs.camunda.io/docs/apis-tools/tasklist-api-rest/tasklist-api-rest-overview/[REST API] over the https://docs.camunda.io/docs/apis-tools/tasklist-api/tasklist-api-overview/[GraphQL API]
 
-The GraphQL API will be deprecated soon as mentioned in https://academy.camunda.com/c8-technical-overview[Camunda 8 - Technical Overview].
+The GraphQL API will be deprecated soon as mentioned in https://academy.camunda.com/c8-technical-overview[Camunda 8 - Technical Overview]. +
+The https://github.com/camunda-community-hub/camunda-tasklist-client-java[Java client] uses the REST API.
 
 === Testing
 
