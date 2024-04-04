@@ -1,8 +1,8 @@
 package com.micasa.tutorial.controller;
 
-import io.camunda.tasklist.CamundaTaskListClient;
+import com.micasa.tutorial.service.TaskService;
 import io.camunda.tasklist.dto.Task;
-import io.camunda.tasklist.dto.TaskSearch;
+import io.camunda.tasklist.exception.TaskListException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +16,18 @@ import java.util.Map;
 public class TaskController {
 
     @Autowired
-    CamundaTaskListClient taskListClient;
+    TaskService taskService;
 
     @GetMapping("/task")
     public ResponseEntity<List<Task>> getTasks(@RequestParam Map<String,String> parameters) {
-        var searchCriteria = new TaskSearch();
-        parameters.forEach((name, value) -> switch (name) {
-            case "assignee":
-        });
-        return ResponseEntity.accepted().build();
+        try {
+            var tasks = taskService.getTasks(parameters);
+            return tasks
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.noContent().build());
+        } catch (TaskListException tle) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
+
 }

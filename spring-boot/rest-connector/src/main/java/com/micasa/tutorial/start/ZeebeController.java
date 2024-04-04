@@ -4,7 +4,6 @@ import com.micasa.tutorial.config.BeanConfig;
 import com.micasa.tutorial.model.ExchangeRateRequest;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.PublishMessageResponse;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

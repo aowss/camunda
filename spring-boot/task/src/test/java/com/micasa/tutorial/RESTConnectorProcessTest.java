@@ -2,7 +2,7 @@ package com.micasa.tutorial;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.micasa.tutorial.model.ExchangeRateRequest;
-import com.micasa.tutorial.start.ZeebeController;
+import com.micasa.tutorial.service.ZeebeService;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
 import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.process.test.inspections.InspectionUtility;
@@ -32,7 +32,7 @@ class RESTConnectorProcessTest {
     private ZeebeTestEngine engine;
 
     @Autowired
-    private ZeebeController controller;
+    private ZeebeService zeebeService;
 
     @Test
     @DisplayName("Using the Zeebe Controller")
@@ -57,7 +57,7 @@ class RESTConnectorProcessTest {
             )
         );
 
-        controller.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
+        zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()
@@ -87,7 +87,7 @@ class RESTConnectorProcessTest {
             .willReturn(serverError())
         );
 
-        controller.startProcess(new ExchangeRateRequest("INVALID", "CAD", 1000));
+        zeebeService.startProcess(new ExchangeRateRequest("INVALID", "CAD", 1000));
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()
@@ -114,7 +114,7 @@ class RESTConnectorProcessTest {
             .willReturn(badRequest())
         );
 
-        controller.startProcess(new ExchangeRateRequest("USD", "CAD", 0));
+        zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 0));
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()

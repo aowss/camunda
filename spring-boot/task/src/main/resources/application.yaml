@@ -1,21 +1,30 @@
 # https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
 # https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
 
+#zeebe:
+#  client:
+#    cloud:
+#      region: ont-1
+#      clusterId: 4784612d-1495-4f2a-951d-049c8b985f06
+#      clientId: jMNcIFp.GJ1-ZYK~Av-8zLHM7xmYCTLs
+#      clientSecret: dbz--V.YX9JzRzF_44iL9DNz.h0_1S-qpPbl~2xYt6f0ua5h3CWQ2wVulQ68b-Rm
+
 zeebe:
   client:
+    broker:
+      gateway-address: localhost:26500
+    security:
+      plaintext: true
     cloud:
-      region: ont-1
-      clusterId: 4784612d-1495-4f2a-951d-049c8b985f06
-      clientId: jMNcIFp.GJ1-ZYK~Av-8zLHM7xmYCTLs
-      clientSecret: dbz--V.YX9JzRzF_44iL9DNz.h0_1S-qpPbl~2xYt6f0ua5h3CWQ2wVulQ68b-Rm
+      client-id: zeebe
+      client-secret: zecret
+      auth-url: http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/token
 
-# See https://github.com/camunda/connectors/tree/main/connector-runtime/spring-boot-starter-camunda-connectors
-camunda:
-  connector:
-    polling:
-      enabled: false
-    webhook:
-      enabled: false
+tasklist:
+  url: http://localhost:8082
+  keycloak-url: http://localhost:18080
+  client-id: ${zeebe.client.cloud.client-id}
+  client-secret: ${zeebe.client.cloud.client-secret}
 
 api:
   url: http://${ENV:prod}-rates:9999/exchangeRates
