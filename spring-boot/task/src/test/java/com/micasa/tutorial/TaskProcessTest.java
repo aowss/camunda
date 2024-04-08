@@ -25,8 +25,10 @@ import java.util.concurrent.TimeoutException;
 @ZeebeSpringTest
 @WireMockTest(httpPort = 9999)
 @ActiveProfiles("test")
-@DisplayName("REST Connector Test")
-class RESTConnectorProcessTest {
+@DisplayName("User Task Test")
+class TaskProcessTest {
+
+    private static final String processId = "Process_UserTask";
 
     @Autowired
     private ZeebeTestEngine engine;
@@ -35,33 +37,13 @@ class RESTConnectorProcessTest {
     private ZeebeService zeebeService;
 
     @Test
-    @DisplayName("Using the Zeebe Controller")
-    void zeebeController() {
-        stubFor(
-            get(urlPathEqualTo("/exchangeRates"))
-                .withQueryParam("fromCurrency", equalTo("USD"))
-                .withQueryParam("toCurrency", equalTo("CAD"))
-                .withQueryParam("amount", equalTo("1000"))
-            .willReturn(
-                okJson("""
-                    {
-                        "from": "USD",
-                        "to": "CAD",
-                        "rate": 1.32466,
-                        "time": "2023-12-26T12:58.30Z",
-                        "fromAmount": 500,
-                        "toAmount": 662.33
-                    }
-                    """
-                )
-            )
-        );
-
+    @DisplayName("Amount >= 1000 --> preferential rate")
+    void preferentialRate() {
         zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()
-                .withBpmnProcessId("Process_RESTConnector")
+                .withBpmnProcessId(processId)
                 .findFirstProcessInstance()
                 .get();
 
@@ -69,11 +51,7 @@ class RESTConnectorProcessTest {
 
         BpmnAssert.assertThat(processInstance)
                 .hasPassedElement("Start_ExchangeRateRequest")
-                .hasVariableWithValue("apiURL", "http://localhost:9999/exchangeRates")
-                .hasVariableWithValue("toCurrency", "CAD")
-                .hasVariableWithValue("fromCurrency", "USD")
-                .hasVariableWithValue("fromAmount", 1000)
-                .hasVariableWithValue("exchangeRate", 1.32466);
+                .isWaitingAtElements("UserTask_PreferentialRate");
     }
 
     @Test
