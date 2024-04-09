@@ -5,6 +5,6 @@ zeebe:
   client:
     cloud:
       region: ont-1
-      clusterId: 4784612d-1495-4f2a-951d-049c8b985f06
-      clientId: jMNcIFp.GJ1-ZYK~Av-8zLHM7xmYCTLs
-      clientSecret: dbz--V.YX9JzRzF_44iL9DNz.h0_1S-qpPbl~2xYt6f0ua5h3CWQ2wVulQ68b-Rm
+      clusterId: 35eedd8b-35e5-4373-8a4c-f211043e42da
+      clientId: kMVnghsS4TV7lqocluB9AsLNNRSNsCr1
+      clientSecret: EIt0BqN-bEK~hVbvN8tZO4vPgmZYQ-RbQdnqRwIsyQnZ9Bp-h5XJBT9NuS8cFnu-

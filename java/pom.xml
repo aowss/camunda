@@ -19,11 +19,22 @@
         <module>testing</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.camunda</groupId>
+                <artifactId>zeebe-bom</artifactId>
+                <version>${camunda.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.camunda</groupId>
             <artifactId>zeebe-client-java</artifactId>
-            <version>${camunda.version}</version>
         </dependency>
     </dependencies>
 
