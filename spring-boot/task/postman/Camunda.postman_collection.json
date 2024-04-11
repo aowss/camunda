@@ -1,0 +1,149 @@
+{
+	"info": {
+		"_postman_id": "b807b8d6-0f43-4358-b38b-577cf082e7fb",
+		"name": "Camunda",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9896673"
+	},
+	"item": [
+		{
+			"name": "Get Tasklist Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"the token expires in 5 minutes\", function() {",
+							"    pm.expect(response.expires_in).to.eql(300);",
+							"})",
+							"",
+							"pm.environment.set(\"access_token\", response.access_token);",
+							"pm.environment.set(\"resfresh_token\", response.refresh_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{ssoURL}}/auth/realms/camunda-platform/protocol/openid-connect/token",
+					"host": [
+						"{{ssoURL}}"
+					],
+					"path": [
+						"auth",
+						"realms",
+						"camunda-platform",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve All Tasks",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{tasklistURL}}/v1/tasks/search",
+					"host": [
+						"{{tasklistURL}}"
+					],
+					"path": [
+						"v1",
+						"tasks",
+						"search"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "username",
+			"value": "demo",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "demo",
+			"type": "string"
+		}
+	]
+}
