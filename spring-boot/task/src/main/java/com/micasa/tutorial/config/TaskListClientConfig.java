@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @ConfigurationProperties(prefix = "tasklist")
-@Profile("!test")
 public class TaskListClientConfig {
 
     private String url;
@@ -64,12 +63,14 @@ public class TaskListClientConfig {
                                   .jwtConfig(jwtConfig)
                                   .build();
 
-        return CamundaTaskListClient.builder()
+        var client = CamundaTaskListClient.builder()
                    .taskListUrl(url)
                    .shouldReturnVariables()
                    .shouldLoadTruncatedVariables()
                    .authentication(auth)
                    .build();
+
+        return client;
     }
 
 }

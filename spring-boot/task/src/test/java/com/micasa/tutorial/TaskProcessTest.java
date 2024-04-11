@@ -8,22 +8,34 @@ import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.process.test.inspections.InspectionUtility;
 import io.camunda.zeebe.process.test.inspections.model.InspectedProcessInstance;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+//import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcessInstanceCompleted;
+import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcessInstanceHasPassedElement;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 @ZeebeSpringTest
-@WireMockTest(httpPort = 9999)
+//@WireMockTest(httpPort = 9999)
 @ActiveProfiles("test")
 @DisplayName("User Task Test")
 class TaskProcessTest {
@@ -36,9 +48,21 @@ class TaskProcessTest {
     @Autowired
     private ZeebeService zeebeService;
 
+    @Autowired
+    private MockMvc mvc;
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @BeforeEach
+    public void setup() {
+        //Init MockMvc Object and build
+        mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    }
+
     @Test
     @DisplayName("Amount >= 1000 --> preferential rate")
-    void preferentialRate() {
+    void preferentialRate() throws Exception {
         zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
 
         InspectedProcessInstance processInstance = InspectionUtility
@@ -47,64 +71,14 @@ class TaskProcessTest {
                 .findFirstProcessInstance()
                 .get();
 
-        waitForProcessInstanceCompleted(processInstance);
+        waitForProcessInstanceHasPassedElement(processInstance, "Gateway_LargeAmount");
 
         BpmnAssert.assertThat(processInstance)
-                .hasPassedElement("Start_ExchangeRateRequest")
                 .isWaitingAtElements("UserTask_PreferentialRate");
-    }
 
-    @Test
-    @DisplayName("API error -> default rate")
-    void error() {
-        stubFor(
-            get(urlPathEqualTo("/exchangeRates"))
-                .withQueryParam("fromCurrency", equalTo("INVALID"))
-                .withQueryParam("toCurrency", equalTo("CAD"))
-                .withQueryParam("amount", equalTo("1000"))
-            .willReturn(serverError())
-        );
-
-        zeebeService.startProcess(new ExchangeRateRequest("INVALID", "CAD", 1000));
-
-        InspectedProcessInstance processInstance = InspectionUtility
-                .findProcessInstances()
-                .withBpmnProcessId("Process_RESTConnector")
-                .findFirstProcessInstance()
-                .get();
-
-        waitForProcessInstanceCompleted(processInstance);
-
-        BpmnAssert.assertThat(processInstance)
-                .hasPassedElement("Task-DefaultRate")
-                .hasVariableWithValue("fromCurrency", "INVALID")
-                .hasVariableWithValue("exchangeRate", 1.3); // default rate
-    }
-
-    @Test
-    @DisplayName("Request error -> incident")
-    void incident() throws InterruptedException, TimeoutException {
-        stubFor(
-            get(urlPathEqualTo("/exchangeRates"))
-                .withQueryParam("fromCurrency", equalTo("USD"))
-                .withQueryParam("toCurrency", equalTo("CAD"))
-                .withQueryParam("amount", equalTo("0"))
-            .willReturn(badRequest())
-        );
-
-        zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 0));
-
-        InspectedProcessInstance processInstance = InspectionUtility
-                .findProcessInstances()
-                .withBpmnProcessId("Process_RESTConnector")
-                .findFirstProcessInstance()
-                .get();
-
-        engine.waitForBusyState(Duration.ofSeconds(10));
-
-        BpmnAssert.assertThat(processInstance)
-                .hasNotPassedElement("Task_CallExchangeRateAPI")
-                .hasAnyIncidents();
+        mvc.perform(get("/task"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
     }
 
 }

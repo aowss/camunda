@@ -15,21 +15,26 @@
     <packaging>jar</packaging>
 
     <properties>
-        <camunda.version>8.4.0</camunda.version>
         <tasklist-client.version>8.4.0.7</tasklist-client.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.camunda.spring</groupId>
-            <artifactId>spring-boot-starter-camunda</artifactId>
+            <groupId>io.camunda.connector</groupId>
+            <artifactId>spring-boot-starter-camunda-connectors</artifactId>
             <version>${camunda.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-web</artifactId>-->
-<!--            <version>${spring-boot.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.camunda.connector</groupId>
+            <artifactId>connector-http-json</artifactId>
+            <version>${camunda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.camunda.connector</groupId>
+            <artifactId>connector-test</artifactId>
+            <version>${camunda.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.camunda</groupId>
             <artifactId>camunda-tasklist-client-java</artifactId>
