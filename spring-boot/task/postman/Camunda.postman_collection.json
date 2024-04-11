@@ -7,111 +7,228 @@
 	},
 	"item": [
 		{
-			"name": "Get Tasklist Token",
-			"event": [
+			"name": "User Task",
+			"item": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
+					"name": "Ask for Exchange Rate",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?from=CAD&to=USD&amount=2000",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "CAD"
+								},
+								{
+									"key": "to",
+									"value": "USD"
+								},
+								{
+									"key": "amount",
+									"value": "2000"
+								}
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"status code is 200\", function() {",
-							"    pm.response.to.have.status(200);",
-							"})",
-							"",
-							"var response = pm.response.json();",
-							"",
-							"pm.test(\"the token expires in 5 minutes\", function() {",
-							"    pm.expect(response.expires_in).to.eql(300);",
-							"})",
-							"",
-							"pm.environment.set(\"access_token\", response.access_token);",
-							"pm.environment.set(\"resfresh_token\", response.refresh_token);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "basic",
-					"basic": [
+					"name": "Get Token",
+					"event": [
 						{
-							"key": "password",
-							"value": "{{password}}",
-							"type": "string"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "username",
-							"value": "{{username}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"pm.test(\"the token expires in 5 minutes\", function() {",
+									"    pm.expect(response.expires_in).to.eql(300);",
+									"})",
+									"",
+									"pm.environment.set(\"access_token\", response.access_token);",
+									"pm.environment.set(\"resfresh_token\", response.refresh_token);"
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "grant_type",
-							"value": "client_credentials",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "{{ssoURL}}/auth/realms/camunda-platform/protocol/openid-connect/token",
-					"host": [
-						"{{ssoURL}}"
 					],
-					"path": [
-						"auth",
-						"realms",
-						"camunda-platform",
-						"protocol",
-						"openid-connect",
-						"token"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Retrieve All Tasks",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{access_token}}",
-							"type": "string"
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{ssoURL}}/auth/realms/camunda-platform/protocol/openid-connect/token",
+							"host": [
+								"{{ssoURL}}"
+							],
+							"path": [
+								"auth",
+								"realms",
+								"camunda-platform",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
 						}
-					]
+					},
+					"response": []
 				},
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{tasklistURL}}/v1/tasks/search",
-					"host": [
-						"{{tasklistURL}}"
-					],
-					"path": [
-						"v1",
-						"tasks",
-						"search"
-					]
+				{
+					"name": "Retrieve All Tasks from Tasklist",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tasklistURL}}/v1/tasks/search",
+							"host": [
+								"{{tasklistURL}}"
+							],
+							"path": [
+								"v1",
+								"tasks",
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve All Tasks",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/task",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve All Completed Tasks",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/task?state=completed",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "completed"
+								}
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		}
 	],
 	"event": [
