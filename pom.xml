@@ -21,6 +21,7 @@
         <java.version>21</java.version>
         <maven-compiler.version>3.13.0</maven-compiler.version>
         <maven-surefire.version>3.2.5</maven-surefire.version>
+        <maven-spotless.version>2.43.0</maven-spotless.version>
         <camunda.version>8.4.2</camunda.version>
         <sl4j.verion>2.0.9</sl4j.verion>
         <junit.version>5.10.2</junit.version>
@@ -86,4 +87,55 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- profile to auto format -->
+        <profile>
+            <id>autoFormat</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.diffplug.spotless</groupId>
+                        <artifactId>spotless-maven-plugin</artifactId>
+                        <version>${maven-spotless.version}</version>
+                        <executions>
+                            <execution>
+                                <id>spotless-format</id>
+                                <goals>
+                                    <goal>apply</goal>
+                                </goals>
+                                <phase>process-sources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- profile to perform strict validation checks -->
+        <profile>
+            <id>checkFormat</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.diffplug.spotless</groupId>
+                        <artifactId>spotless-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>spotless-check</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>validate</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
