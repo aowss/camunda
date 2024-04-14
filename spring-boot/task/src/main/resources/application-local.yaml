@@ -18,5 +18,12 @@ tasklist:
   client-id: ${zeebe.client.cloud.client-id}
   client-secret: ${zeebe.client.cloud.client-secret}
 
+camunda:
+  connector:
+    polling:
+      enabled: false
+    webhook:
+      enabled: false
+
 api:
   url: http://${ENV:prod}-rates:9999/exchangeRates
