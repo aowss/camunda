@@ -3,27 +3,17 @@
 
 zeebe:
   client:
-    broker:
-      gateway-address: localhost:26500
-    security:
-      plaintext: true
     cloud:
-      client-id: zeebe
-      client-secret: zecret
-      auth-url: http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      region: ont-1
+      clusterId: 35eedd8b-35e5-4373-8a4c-f211043e42da
+      clientId: kMVnghsS4TV7lqocluB9AsLNNRSNsCr1
+      clientSecret: EIt0BqN-bEK~hVbvN8tZO4vPgmZYQ-RbQdnqRwIsyQnZ9Bp-h5XJBT9NuS8cFnu-
 
 tasklist:
-  url: http://localhost:8082
-  keycloak-url: http://localhost:18080
-  client-id: ${zeebe.client.cloud.client-id}
-  client-secret: ${zeebe.client.cloud.client-secret}
-
-camunda:
-  connector:
-    polling:
-      enabled: false
-    webhook:
-      enabled: false
+  url: https://ont-1.tasklist.camunda.io/35eedd8b-35e5-4373-8a4c-f211043e42da
+  keycloak-url: https://login.cloud.camunda.io/oauth/token
+  client-id: ${zeebe.client.cloud.clientId}
+  client-secret: ${zeebe.client.cloud.clientSecret}
 
 api:
   url: http://${ENV:prod}-rates:9999/exchangeRates
