@@ -1,3 +1,6 @@
+server:
+  port: 9000
+
 # https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
 # https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
 
@@ -8,14 +11,3 @@ zeebe:
       clusterId: 35eedd8b-35e5-4373-8a4c-f211043e42da
       clientId: kMVnghsS4TV7lqocluB9AsLNNRSNsCr1
       clientSecret: EIt0BqN-bEK~hVbvN8tZO4vPgmZYQ-RbQdnqRwIsyQnZ9Bp-h5XJBT9NuS8cFnu-
-
-# See https://github.com/camunda/connectors/tree/main/connector-runtime/spring-boot-starter-camunda-connectors
-camunda:
-  connector:
-    polling:
-      enabled: false
-    webhook:
-      enabled: false
-
-api:
-  url: http://${ENV:prod}-rates:9999/exchangeRates

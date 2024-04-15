@@ -1,3 +1,9 @@
+server:
+  port: 9000
+
+api:
+  url: http://${ENV:prod}-rates:9999/exchangeRates
+
 # https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
 # https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
 
@@ -24,6 +30,3 @@ camunda:
       enabled: false
     webhook:
       enabled: false
-
-api:
-  url: http://${ENV:prod}-rates:9999/exchangeRates
