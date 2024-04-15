@@ -16,7 +16,7 @@ public class ProcessController {
 
     @GetMapping("/exchangeRate")
     public ResponseEntity<Void> getExchangeRate(@RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("amount") int amount) {
-        zeebeService.startProcess(new ExchangeRateRequest(from, to, amount));
+        var response = zeebeService.startProcess(new ExchangeRateRequest(from, to, amount));
         return ResponseEntity.accepted().build();
     }
 

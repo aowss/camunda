@@ -23,6 +23,7 @@ public class TaskService {
         parameters.forEach((name, value) -> {
             switch (name) {
                 case "assignee" -> searchCriteria.setAssignee(value);
+                case "assigned" -> searchCriteria.setAssigned(Boolean.valueOf(value));
                 case "group" -> searchCriteria.setGroup(value);
                 case "state" -> {
                     switch (value.toUpperCase()) {
@@ -43,6 +44,21 @@ public class TaskService {
         var tasks = taskListClient.getTasks(searchCriteria).getItems();
         if (tasks == null || tasks.isEmpty()) return Optional.empty();
         else return Optional.of(tasks);
+    }
+
+    public Optional<Task> getTask(String taskId) throws TaskListException {
+        return Optional.ofNullable(taskListClient.getTask(taskId));
+    }
+    public Task claimTask(String taskId, String user) throws TaskListException {
+        return taskListClient.claim(taskId, user);
+    }
+
+    public Task releaseTask(String taskId) throws TaskListException {
+        return taskListClient.unclaim(taskId);
+    }
+
+    public Task completeTask(String taskId, float rate) throws TaskListException {
+        return taskListClient.completeTask(taskId, Map.of("exchangeRate", rate));
     }
 
 }

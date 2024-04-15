@@ -131,7 +131,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve All Tasks from Tasklist",
+					"name": "[ Tasklist ] Retrieve All Tasks",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -147,7 +147,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "",
+							"raw": "{\n    \"includeVariables\": [\n        {\n            \"name\": \"fromAmount\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -170,6 +170,17 @@
 				},
 				{
 					"name": "Retrieve All Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -227,6 +238,206 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Retrieve All Unassigned Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"pm.collectionVariables.set(\"taskId\", response[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/task?state=created&assigned=false",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "created"
+								},
+								{
+									"key": "assigned",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Claim Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"pm.test(\"the task is assigned\", function() {",
+									"    pm.expect(response.taskState).to.eql(\"CREATED\");",
+									"    pm.expect(response.assignee).to.eql(\"user-id\");",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"CLAIMED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/task/{{taskId}}/status",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"{{taskId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Release Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"pm.test(\"the task is released\", function() {",
+									"    pm.expect(response.taskState).to.eql(\"CREATED\");",
+									"    pm.expect(response.assignee).to.be.null;",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"RELEASED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/task/{{taskId}}/status",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"{{taskId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Claim and Complete Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"pm.test(\"the task is completed\", function() {",
+									"    pm.expect(response.taskState).to.eql(\"COMPLETED\");",
+									"    pm.expect(response.assignee).to.be.null;",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rate\": 1.3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/task/{{taskId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"task",
+								"{{taskId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -253,14 +464,8 @@
 	],
 	"variable": [
 		{
-			"key": "username",
-			"value": "demo",
-			"type": "string"
-		},
-		{
-			"key": "password",
-			"value": "demo",
-			"type": "string"
+			"key": "taskId",
+			"value": ""
 		}
 	]
 }
