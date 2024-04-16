@@ -1,9 +1,3 @@
-server:
-  port: 9000
-
-# https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
-# https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
-
 zeebe:
   client:
     cloud:

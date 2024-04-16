@@ -1,22 +1,13 @@
-server:
-  port: 9000
-
-api:
-  url: http://${ENV:prod}-rates:9999/exchangeRates
-
-# https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
-# https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
-
 zeebe:
   client:
     cloud:
       region: ont-1
-      clusterId: 35eedd8b-35e5-4373-8a4c-f211043e42da
-      clientId: kMVnghsS4TV7lqocluB9AsLNNRSNsCr1
-      clientSecret: EIt0BqN-bEK~hVbvN8tZO4vPgmZYQ-RbQdnqRwIsyQnZ9Bp-h5XJBT9NuS8cFnu-
+      cluster-id: 35eedd8b-35e5-4373-8a4c-f211043e42da
+      client-id: kMVnghsS4TV7lqocluB9AsLNNRSNsCr1
+      client-secret: EIt0BqN-bEK~hVbvN8tZO4vPgmZYQ-RbQdnqRwIsyQnZ9Bp-h5XJBT9NuS8cFnu-
 
 tasklist:
   url: https://ont-1.tasklist.camunda.io/35eedd8b-35e5-4373-8a4c-f211043e42da
   keycloak-url: https://login.cloud.camunda.io/oauth/token
-  client-id: ${zeebe.client.cloud.clientId}
-  client-secret: ${zeebe.client.cloud.clientSecret}
+  client-id: ${zeebe.client.cloud.client-id}
+  client-secret: ${zeebe.client.cloud.client-secret}
