@@ -13,7 +13,7 @@
 .Camunda Architecture
 image::Camunda Architecture.png[Architecture, 430, 240, role="thumb"]
 
-* Camunda 8 only offers a standalone deployment option, a.k.a. remote workflow engine
+* Camunda 8 only offers a standalone deployment option, a.k.a. remote workflow engine footnote:[See https://camunda.com/blog/2022/02/moving-from-embedded-to-remote-workflow-engines/[this] for decision rationale]
 
 The clients communicate with the Zeebe cluster using https://grpc.io/[gRPC] through the gRPC Gateway.
 
@@ -113,7 +113,7 @@ The https://github.com/camunda-community-hub/camunda-tasklist-client-java[Java c
 
 === Testing
 
-* Run an embedded Zeebe test engine using the `zeebe-process-test-extension` dependency footnote:[as opposed to a test container using the `zeebe-process-test-extension-testcontainer` dependency]
+* Run an embedded Zeebe test engine using the `zeebe-process-test-extension` dependency footnote:[As opposed to a test container using the `zeebe-process-test-extension-testcontainer` dependency]
 
 * Use the Spring test dependency https://github.com/camunda-community-hub/spring-zeebe#writing-test-cases[`spring-zeebe-test`] which is a wrapper around `zeebe-process-test-extension`
 
@@ -121,7 +121,8 @@ The https://github.com/camunda-community-hub/camunda-tasklist-client-java[Java c
 
 * Every path must be tested and in particular every FEEL expression
 
-Use the https://github.com/camunda-community-hub/camunda-process-test-coverage[Camunda Process Test Coverage] dependency to assess the coverage. If possible use the Sonar Plugin as documented https://camunda-community-hub.github.io/camunda-process-test-coverage/snapshot/getting-started.html#sonarqube-plugin[here].
+Use the https://github.com/camunda-community-hub/camunda-process-test-coverage[Camunda Process Test Coverage] dependency to assess the coverage. +
+If possible use the Sonar Plugin as documented https://camunda-community-hub.github.io/camunda-process-test-coverage/snapshot/getting-started.html#sonarqube-plugin[here].
 The report is located in the `process-test-coverage` folder.
 
 * For system tests, mock external APIs using https://wiremock.org[WireMock] instead of mocking the services using https://github.com/mockito/mockito[Mockito]

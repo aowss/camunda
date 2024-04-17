@@ -22,6 +22,7 @@
         <module>error-handling</module>
         <module>rest-connector</module>
         <module>task</module>
+        <module>cancellation</module>
     </modules>
 
     <dependencyManagement>
