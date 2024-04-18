@@ -10,34 +10,3 @@ This is an example of using the https://github.com/camunda-community-hub/camunda
 
 .Process
 image::process.png[Process, role="thumb"]
-
-This example shows how to:
-
-. Start a process based on a message
-+
-====
-.BPMN
-image::Message-Start-Event.png[Process, role="thumb"]
-
-----
-var processVariables = Map.of(
-    "from", request.from(), <4>
-    "to", request.to(),
-    "amount", request.amount()
-);
-client
-    .newPublishMessageCommand() <1>
-    .messageName("Exchange Rate Request") <2>
-    .variables(processVariables)
-    .messageId("Exchange Rate Request") <3>
-    .send();
-----
-<1> The process is started using the `newPublishMessageCommand` since the `Start Event` in the BPMN diagram is a `Message Start Event`
-<2> The `messageName` parameter matches the name defined in the BPMN diagram
-<3> Not sure why we need both `messageName` and `messageId`
-<4> In the BPMN `Outputs` section the `from` variable is mapped to `fromCurrency`
-====
-
-. Configure the REST Connector in the Desktop Modeler
-. Use an environment variable for the API call's URL
-. Use the process variables for the API call's request parameters

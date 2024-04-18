@@ -31,7 +31,6 @@ public class ZeebeController {
             .newPublishMessageCommand()
             .messageName("Exchange Rate Request")
             .correlationKey(UUID.randomUUID().toString())
-            .messageId("Exchange Rate Request")
             .variables(processVariables)
             .send()
             .join();
