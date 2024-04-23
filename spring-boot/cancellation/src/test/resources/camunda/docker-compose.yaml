@@ -17,6 +17,7 @@ services:
     ports:
       - "26500:26500"
       - "9600:9600"
+      - "8088:8080"
     environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
       - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_MODE=${ZEEBE_AUTHENTICATION_MODE}
       - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_IDENTITY_ISSUERBACKENDURL=http://keycloak:8080/auth/realms/camunda-platform
@@ -97,6 +98,7 @@ services:
       - "8082:8080"
     environment: # https://docs.camunda.io/docs/self-managed/tasklist-deployment/configuration/
       - CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS=zeebe:26500
+      - CAMUNDA_TASKLIST_ZEEBE_RESTADDRESS=http://zeebe:8080
       - ZEEBE_CLIENT_ID=${ZEEBE_CLIENT_ID}
       - ZEEBE_CLIENT_SECRET=${ZEEBE_CLIENT_SECRET}
       - ZEEBE_CLIENT_CONFIG_PATH=/tmp/zeebe_auth_cache
@@ -172,46 +174,46 @@ services:
       - operate
       - identity
 
-#  optimize: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#optimize
-#    image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION}
-##    container_name: optimize
-##    ports:
-##      - "8083:8090"
-#    environment: # https://docs.camunda.io/docs/self-managed/optimize-deployment/setup/installation/#available-environment-variables
-#      - OPTIMIZE_ELASTICSEARCH_HOST=elasticsearch
-#      - OPTIMIZE_ELASTICSEARCH_HTTP_PORT=9200
-#      - SPRING_PROFILES_ACTIVE=ccsm
-#      - CAMUNDA_OPTIMIZE_ZEEBE_ENABLED=true
-#      - CAMUNDA_OPTIMIZE_ENTERPRISE=false
-#      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_URL=http://${HOST}:18080/auth/realms/camunda-platform
-#      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
-#      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTID=optimize
-#      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-#      - CAMUNDA_OPTIMIZE_IDENTITY_AUDIENCE=optimize-api
-#      - CAMUNDA_OPTIMIZE_IDENTITY_BASE_URL=http://identity:8084
-#      - CAMUNDA_OPTIMIZE_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
-#      - CAMUNDA_OPTIMIZE_SECURITY_AUTH_COOKIE_SAME_SITE_ENABLED=false
-#      - CAMUNDA_OPTIMIZE_UI_LOGOUT_HIDDEN=true
-#      - management.endpoints.web.exposure.include=health
-#      - management.endpoint.health.probes.enabled=true
-#    healthcheck:
-#      test: [ "CMD-SHELL", "curl -f http://localhost:8090/api/readyz" ]
-#      interval: 30s
-#      timeout: 1s
-#      retries: 5
-#      start_period: 30s
-#    volumes:
-#      - "./.optimize/environment-config.yaml:/optimize/config/environment-config.yaml"
-#    restart: on-failure
-#    networks:
-#      - camunda-platform
-#    depends_on:
-#      - identity
-#      - elasticsearch
+  optimize: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#optimize
+    image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION}
+    container_name: optimize
+    ports:
+      - "8083:8090"
+    environment: # https://docs.camunda.io/docs/self-managed/optimize-deployment/setup/installation/#available-environment-variables
+      - OPTIMIZE_ELASTICSEARCH_HOST=elasticsearch
+      - OPTIMIZE_ELASTICSEARCH_HTTP_PORT=9200
+      - SPRING_PROFILES_ACTIVE=ccsm
+      - CAMUNDA_OPTIMIZE_ZEEBE_ENABLED=true
+      - CAMUNDA_OPTIMIZE_ENTERPRISE=false
+      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_URL=http://${HOST}:18080/auth/realms/camunda-platform
+      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
+      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTID=optimize
+      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
+      - CAMUNDA_OPTIMIZE_IDENTITY_AUDIENCE=optimize-api
+      - CAMUNDA_OPTIMIZE_IDENTITY_BASE_URL=http://identity:8084
+      - CAMUNDA_OPTIMIZE_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
+      - CAMUNDA_OPTIMIZE_SECURITY_AUTH_COOKIE_SAME_SITE_ENABLED=false
+      - CAMUNDA_OPTIMIZE_UI_LOGOUT_HIDDEN=true
+      - management.endpoints.web.exposure.include=health
+      - management.endpoint.health.probes.enabled=true
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8090/api/readyz" ]
+      interval: 30s
+      timeout: 1s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - "./.optimize/environment-config.yaml:/optimize/config/environment-config.yaml"
+    restart: on-failure
+    networks:
+      - camunda-platform
+    depends_on:
+      - identity
+      - elasticsearch
 
   identity: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#identity
-    image: camunda/identity:${CAMUNDA_PLATFORM_VERSION}
     container_name: identity
+    image: camunda/identity:${CAMUNDA_PLATFORM_VERSION}
     ports:
       - "8084:8084"
     environment: # https://docs.camunda.io/docs/self-managed/identity/deployment/configuration-variables/
@@ -268,8 +270,8 @@ services:
         condition: service_healthy
 
   postgres: # https://hub.docker.com/_/postgres
-    image: postgres:${POSTGRES_VERSION}
     container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_DB: bitnami_keycloak
       POSTGRES_USER: bn_keycloak
@@ -286,10 +288,10 @@ services:
       - identity-network
 
   keycloak: # https://hub.docker.com/r/bitnami/keycloak
+    container_name: keycloak
     image: bitnami/keycloak:${KEYCLOAK_SERVER_VERSION}
     volumes:
       - keycloak-theme:/opt/bitnami/keycloak/themes/identity
-    container_name: keycloak
     ports:
       - "18080:8080"
     environment:
@@ -339,26 +341,26 @@ services:
     networks:
       - camunda-platform
 
-#  kibana:
-#    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION}
-##    container_name: kibana
-##    ports:
-##      - 5601:5601
-#    volumes:
-#      - kibana:/usr/share/kibana/data
-#    networks:
-#      - camunda-platform
-#    depends_on:
-#      - elasticsearch
-#    profiles:
-#      - kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION}
+    container_name: kibana
+    ports:
+      - 5601:5601
+    volumes:
+      - kibana:/usr/share/kibana/data
+    networks:
+      - camunda-platform
+    depends_on:
+      - elasticsearch
+    profiles:
+      - kibana
 
 volumes:
   zeebe:
   elastic:
   postgres:
   keycloak-theme:
-#  kibana:
+  kibana:
   operate_tmp:
   tasklist_tmp:
 

@@ -6,7 +6,7 @@
 
 ## Set up
 
-The following files were downloaded from the [Camunda Platform 8 repository](https://github.com/camunda/camunda-platform), more precisely from the [`8.4.5` release branch](https://github.com/camunda/camunda-platform/tree/8.4.5):
+The following files were downloaded from the [Camunda Platform 8 repository](https://github.com/camunda/camunda-platform), more precisely from the [`8.5` release branch](https://github.com/camunda/camunda-platform/tree/8.4.5):
 
     .env
     docker-compose.yaml
