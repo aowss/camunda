@@ -14,10 +14,6 @@
     <name>task</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <tasklist-client.version>8.4.0.7</tasklist-client.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.camunda.connector</groupId>
@@ -34,11 +30,6 @@
             <artifactId>connector-test</artifactId>
             <version>${camunda.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.camunda</groupId>
-            <artifactId>camunda-tasklist-client-java</artifactId>
-            <version>${tasklist-client.version}</version>
         </dependency>
     </dependencies>
 
