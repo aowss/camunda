@@ -69,8 +69,8 @@ services:
       - CAMUNDA_OPERATE_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       - CAMUNDA_OPERATE_IDENTITY_AUDIENCE=operate-api
       - CAMUNDA_OPERATE_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://${HOST}:18080/auth/realms/camunda-platform
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://${HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/auth/realms/camunda-platform
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/auth/realms/camunda-platform/protocol/openid-connect/certs
       - CAMUNDA_OPERATE_IDENTITY_RESOURCEPERMISSIONSENABLED=${RESOURCE_AUTHORIZATIONS_ENABLED}
       - management.endpoints.web.exposure.include=health
       - management.endpoint.health.probes.enabled=true
@@ -114,8 +114,8 @@ services:
       - CAMUNDA_TASKLIST_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       - CAMUNDA_TASKLIST_IDENTITY_AUDIENCE=tasklist-api
       - CAMUNDA_TASKLIST_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://${HOST}:18080/auth/realms/camunda-platform
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://${HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/auth/realms/camunda-platform
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/auth/realms/camunda-platform/protocol/openid-connect/certs
       - CAMUNDA_TASKLIST_IDENTITY_RESOURCE_PERMISSIONS_ENABLED=${RESOURCE_AUTHORIZATIONS_ENABLED}
       - management.endpoints.web.exposure.include=health
       - management.endpoint.health.probes.enabled=true
@@ -156,6 +156,10 @@ services:
       - CAMUNDA_IDENTITY_CLIENT_SECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       - CAMUNDA_IDENTITY_TYPE=KEYCLOAK
       - CAMUNDA_IDENTITY_AUDIENCE=operate-api
+      - CONNECTOR_REST_FUNCTION=io.camunda.connector.http.rest.HttpJsonFunction
+      - CONNECTOR_REST_TYPE=io.camunda:http-json:1
+      - CONNECTOR_REST_INPUT_VARIABLES=url, method, authentication, headers, queryParameters, connectionTimeoutInSeconds, readTimeoutInSeconds, writeTimeoutInSeconds, body
+      - CONNECTOR_REST_TIMEOUT=300000
       - management.endpoints.web.exposure.include=health
       - management.endpoint.health.probes.enabled=true
     env_file: connector-secrets.txt

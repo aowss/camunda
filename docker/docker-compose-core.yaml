@@ -97,6 +97,10 @@ services:
       - CAMUNDA_OPERATE_CLIENT_URL=http://operate:8080
       - CAMUNDA_OPERATE_CLIENT_USERNAME=demo
       - CAMUNDA_OPERATE_CLIENT_PASSWORD=demo
+      - CONNECTOR_REST_FUNCTION=io.camunda.connector.http.rest.HttpJsonFunction
+      - CONNECTOR_REST_TYPE=io.camunda:http-json:1
+      - CONNECTOR_REST_INPUT_VARIABLES=url, method, authentication, headers, queryParameters, connectionTimeoutInSeconds, readTimeoutInSeconds, writeTimeoutInSeconds, body
+      - CONNECTOR_REST_TIMEOUT=300000
       - management.endpoints.web.exposure.include=health
       - management.endpoint.health.probes.enabled=true
     healthcheck:
