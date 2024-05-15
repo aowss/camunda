@@ -2,7 +2,7 @@ server:
   port: 9000
 
 api:
-  url: http://${ENV:prod}-rates:9999/exchangeRates
+  url: http://${APIS_HOST:localhost}-rates:9999/exchangeRates
 
 # See https://github.com/camunda/connectors/tree/main/connector-runtime/spring-boot-starter-camunda-connectors
 camunda:

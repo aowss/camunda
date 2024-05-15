@@ -1,0 +1,44 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/order"
+      },
+      "response": {
+        "status": 201,
+        "bodyFileName": "order.json"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/invoice"
+      },
+      "response": {
+        "status": 201,
+        "bodyFileName": "invoice.json"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/notification"
+      },
+      "response": {
+        "status": 201,
+        "bodyFileName": "notification.json"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/dispatch"
+      },
+      "response": {
+        "status": 201,
+        "bodyFileName": "dispatch.json"
+      }
+    }
+  ]
+}
