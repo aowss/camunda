@@ -5,10 +5,7 @@ import io.camunda.tasklist.CamundaTaskListClient;
 import io.camunda.tasklist.exception.TaskListException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
-@Configuration
 @ConfigurationProperties(prefix = "tasklist")
 public class TaskListClientConfig {
 

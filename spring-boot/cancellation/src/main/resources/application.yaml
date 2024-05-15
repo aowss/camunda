@@ -1,0 +1,16 @@
+server:
+  port: 9000
+
+apis:
+  persistURL: http://${APIS_HOST:localhost}:9999/order
+  generateURL: http://${APIS_HOST:localhost}:9999/invoice
+  notifyURL: http://${APIS_HOST:localhost}:9999/notification
+  dispatchURL: http://${APIS_HOST:localhost}:9999/dispatch
+  notificationDelay: PT1M
+
+camunda:
+  connector:
+    polling:
+      enabled: false
+    webhook:
+      enabled: false

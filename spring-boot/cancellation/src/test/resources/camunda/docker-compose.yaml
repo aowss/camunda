@@ -156,6 +156,10 @@ services:
       - CAMUNDA_IDENTITY_CLIENT_SECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       - CAMUNDA_IDENTITY_TYPE=KEYCLOAK
       - CAMUNDA_IDENTITY_AUDIENCE=operate-api
+      - CONNECTOR_REST_FUNCTION=io.camunda.connector.http.rest.HttpJsonFunction
+      - CONNECTOR_REST_TYPE=io.camunda:http-json:1
+      - CONNECTOR_REST_INPUT_VARIABLES=url, method, authentication, headers, queryParameters, connectionTimeoutInSeconds, readTimeoutInSeconds, writeTimeoutInSeconds, body
+      - CONNECTOR_REST_TIMEOUT=300000
       - management.endpoints.web.exposure.include=health
       - management.endpoint.health.probes.enabled=true
     env_file: connector-secrets.txt
@@ -210,8 +214,8 @@ services:
 #      - elasticsearch
 
   identity: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#identity
-    image: camunda/identity:${CAMUNDA_PLATFORM_VERSION}
     container_name: identity
+    image: camunda/identity:${CAMUNDA_PLATFORM_VERSION}
     ports:
       - "8084:8084"
     environment: # https://docs.camunda.io/docs/self-managed/identity/deployment/configuration-variables/
@@ -268,8 +272,8 @@ services:
         condition: service_healthy
 
   postgres: # https://hub.docker.com/_/postgres
-    image: postgres:${POSTGRES_VERSION}
     container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_DB: bitnami_keycloak
       POSTGRES_USER: bn_keycloak
@@ -286,10 +290,10 @@ services:
       - identity-network
 
   keycloak: # https://hub.docker.com/r/bitnami/keycloak
+    container_name: keycloak
     image: bitnami/keycloak:${KEYCLOAK_SERVER_VERSION}
     volumes:
       - keycloak-theme:/opt/bitnami/keycloak/themes/identity
-    container_name: keycloak
     ports:
       - "18080:8080"
     environment:

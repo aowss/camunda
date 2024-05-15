@@ -34,6 +34,7 @@ public class TaskService {
                 }
                 default -> {
                     try {
+                        //  The variables need to be at the root, i.e. order.orderId doesn't work!
                         searchCriteria.addVariableFilter(name, value);
                     } catch (TaskListException tle) {
                         System.out.println(STR."Invalid value for variable \{ name }: \{ value }");

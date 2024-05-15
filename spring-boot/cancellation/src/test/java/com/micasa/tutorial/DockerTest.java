@@ -1,14 +1,13 @@
 package com.micasa.tutorial;
 
 import com.jayway.jsonpath.JsonPath;
-import com.micasa.tutorial.model.ExchangeRateRequest;
+import com.micasa.tutorial.model.Order;
 import com.micasa.tutorial.service.ZeebeService;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
 import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.process.test.inspections.InspectionUtility;
 import io.camunda.zeebe.process.test.inspections.model.InspectedProcessInstance;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,20 +17,24 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.File;
 import java.io.FileReader;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.micasa.tutorial.Constants.MESSAGE_NEW_ORDER;
 import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcessInstanceHasPassedElement;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -129,7 +132,10 @@ class DockerTest {
     @Test
     @DisplayName("Amount >= 1000 --> preferential rate")
     void preferentialRate() throws Exception {
-        zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
+        zeebeService.startProcess(
+            new Order("O-1234", false, null, List.of(), 150.0f, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS)),
+            MESSAGE_NEW_ORDER
+        );
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()
@@ -157,7 +163,10 @@ class DockerTest {
     @Disabled
     @DisplayName("Claim task")
     void claimTask() throws Exception {
-        zeebeService.startProcess(new ExchangeRateRequest("USD", "CAD", 1000));
+        zeebeService.startProcess(
+            new Order("O-1234", false, null, List.of(), 150.0f, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS)),
+            MESSAGE_NEW_ORDER
+        );
 
         InspectedProcessInstance processInstance = InspectionUtility
                 .findProcessInstances()

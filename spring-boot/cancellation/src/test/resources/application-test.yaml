@@ -1,0 +1,23 @@
+apis:
+  persistURL: http://localhost:9999/order
+  generateURL: http://localhost:9999/invoice
+  notifyURL: http://localhost:9999/notification
+  dispatchURL: http://localhost:9999/dispatch
+  notificationDelay: PT1M
+
+zeebe:
+  client:
+    broker:
+      gateway-address: localhost:26500
+    security:
+      plaintext: true
+    cloud:
+      client-id: zeebe
+      client-secret: zecret
+      auth-url: http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+
+tasklist:
+  url: http://localhost:8082
+  keycloak-url: http://localhost:18080
+  client-id: ${zeebe.client.cloud.client-id}
+  client-secret: ${zeebe.client.cloud.client-secret}

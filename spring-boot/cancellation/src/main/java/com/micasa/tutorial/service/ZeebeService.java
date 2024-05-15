@@ -1,7 +1,7 @@
 package com.micasa.tutorial.service;
 
-import com.micasa.tutorial.config.BeanConfig;
-import com.micasa.tutorial.model.ExchangeRateRequest;
+import com.micasa.tutorial.config.APIConfig;
+import com.micasa.tutorial.model.Order;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.PublishMessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,25 +14,25 @@ import java.util.UUID;
 public class ZeebeService {
 
     @Autowired
-    BeanConfig config;
+    APIConfig config;
 
     @Autowired
     ZeebeClient client;
 
-    public PublishMessageResponse startProcess(ExchangeRateRequest request) {
-        var processVariables = Map.of(
-            "from", request.from(),
-            "to", request.to(),
-            "amount", request.amount(),
-            "apiURL", config.url
+    public PublishMessageResponse startProcess(Order request, String messageName) {
+        var variables = Map.of(
+            "orderId", request.orderId(),
+            "orderDetails", request,
+            "config", config
         );
 
-        return client
+        var command = client
             .newPublishMessageCommand()
-            .messageName("Exchange Rate Request")
-            .correlationKey(UUID.randomUUID().toString())
-            .messageId("Exchange Rate Request")
-            .variables(processVariables)
+            .messageName(messageName)
+            .correlationKey(request.orderId())
+            .variables(variables);
+
+        return command
             .send()
             .join();
     }

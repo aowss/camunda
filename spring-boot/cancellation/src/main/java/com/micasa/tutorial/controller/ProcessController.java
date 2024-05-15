@@ -1,12 +1,14 @@
 package com.micasa.tutorial.controller;
 
-import com.micasa.tutorial.model.ExchangeRateRequest;
+import com.micasa.tutorial.model.Order;
 import com.micasa.tutorial.service.ZeebeService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.micasa.tutorial.Constants.MESSAGE_NEW_ORDER;
+import static com.micasa.tutorial.Constants.MESSAGE_UPDATED_ORDER;
 
 @RestController
 public class ProcessController {
@@ -14,9 +16,15 @@ public class ProcessController {
     @Autowired
     ZeebeService zeebeService;
 
-    @GetMapping("/exchangeRate")
-    public ResponseEntity<Void> getExchangeRate(@RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("amount") int amount) {
-        var response = zeebeService.startProcess(new ExchangeRateRequest(from, to, amount));
+    @PostMapping("/order")
+    public ResponseEntity<Void> createOrder(@RequestBody Order order) {
+        var response = zeebeService.startProcess(order, MESSAGE_NEW_ORDER);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/order")
+    public ResponseEntity<Void> updateOrder(@RequestBody Order order) {
+        var response = zeebeService.startProcess(order, MESSAGE_UPDATED_ORDER);
         return ResponseEntity.accepted().build();
     }
 
