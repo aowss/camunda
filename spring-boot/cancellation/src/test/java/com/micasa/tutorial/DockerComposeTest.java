@@ -1,11 +1,9 @@
 package com.micasa.tutorial;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.jayway.jsonpath.JsonPath;
 import com.micasa.tutorial.service.ZeebeService;
 import com.micasa.tutorial.model.Order;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
-import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.process.test.inspections.InspectionUtility;
 import io.camunda.zeebe.process.test.inspections.model.InspectedProcessInstance;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
@@ -23,9 +21,7 @@ import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcess
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -35,9 +31,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.File;
 import java.io.FileReader;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,9 +103,8 @@ class DockerComposeTest {
         stubFor(post(urlPathEqualTo("/notification")).willReturn(created()));
         stubFor(post(urlPathEqualTo("/dispatch")).willReturn(created()));
 
-        zeebeService.startProcess(
-            new Order("O-1234", false, null, List.of(), 150.0f, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS)),
-            MESSAGE_NEW_ORDER
+        zeebeService.startNewProcess(
+            new Order("O-1234", null, List.of(), 150.0, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS))
         );
 
         InspectedProcessInstance processInstance = InspectionUtility

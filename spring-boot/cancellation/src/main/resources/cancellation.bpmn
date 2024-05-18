@@ -2,7 +2,14 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_046xfy2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.22.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.4.0">
   <bpmn:process id="Process_Cancellation" name="Cancellation" isExecutable="true">
     <bpmn:startEvent id="StartEvent_NewPurchaseOrder" name="New Purchase Order">
-      <bpmn:extensionElements />
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=false" target="update" />
+          <zeebe:output source="=orderId" target="orderId" />
+          <zeebe:output source="=orderDetails" target="orderDetails" />
+          <zeebe:output source="=config" target="config" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_07x1atc</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_12pkycq" messageRef="Message_0mdf9md" />
     </bpmn:startEvent>
@@ -13,9 +20,10 @@
         <zeebe:taskDefinition type="io.camunda:http-json:1" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="noAuth" target="authentication.type" />
-          <zeebe:input source="GET" target="method" />
+          <zeebe:input source="POST" target="method" />
           <zeebe:input source="=config.persistURL" target="url" />
           <zeebe:input source="20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=orderDetails" target="body" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="retryBackoff" value="PT0S" />
@@ -33,6 +41,7 @@
           <zeebe:input source="POST" target="method" />
           <zeebe:input source="=config.generateURL" target="url" />
           <zeebe:input source="20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=orderDetails" target="body" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="retryBackoff" value="PT0S" />
@@ -62,6 +71,7 @@
             <zeebe:input source="POST" target="method" />
             <zeebe:input source="=config.dispatchURL" target="url" />
             <zeebe:input source="20" target="connectionTimeoutInSeconds" />
+            <zeebe:input source="=orderDetails" target="body" />
           </zeebe:ioMapping>
           <zeebe:taskHeaders>
             <zeebe:header key="retryBackoff" value="PT0S" />
@@ -109,6 +119,7 @@
           <zeebe:input source="POST" target="method" />
           <zeebe:input source="=config.notifyURL" target="url" />
           <zeebe:input source="20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=orderDetails" target="body" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="retryBackoff" value="PT0S" />
@@ -122,6 +133,12 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0aa3luk" sourceRef="Task_NotifyAccounting" targetRef="EndEvent_NotificationDone" />
     <bpmn:boundaryEvent id="Event_UpdatedPurchaseOrder" name="Updated Purchase Order" attachedToRef="Activity_0wmcb6b">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=true" target="update" />
+          <zeebe:output source="=deliveryDate" target="orderDetails.deliveryDate" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0ab4mro</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_11yenn8" messageRef="Message_13koigd" />
     </bpmn:boundaryEvent>
@@ -145,13 +162,13 @@
       <bpmn:outgoing>Flow_1207302</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1557ol5" name="Yes" sourceRef="Gateway_NewOrder" targetRef="TimerEvent_NotificationTime">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=order.update = false</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=update = false</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_NoNotification" name="No Notification Needed">
       <bpmn:incoming>Flow_1207302</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1207302" name="No" sourceRef="Gateway_NewOrder" targetRef="EndEvent_NoNotification">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=order.update = true</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=update = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:message id="Message_0mdf9md" name="New Purchase Order" />

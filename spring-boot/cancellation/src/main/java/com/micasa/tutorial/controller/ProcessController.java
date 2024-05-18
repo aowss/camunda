@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.micasa.tutorial.Constants.MESSAGE_NEW_ORDER;
-import static com.micasa.tutorial.Constants.MESSAGE_UPDATED_ORDER;
+import java.time.LocalDate;
 
 @RestController
 public class ProcessController {
@@ -18,13 +17,15 @@ public class ProcessController {
 
     @PostMapping("/order")
     public ResponseEntity<Void> createOrder(@RequestBody Order order) {
-        var response = zeebeService.startProcess(order, MESSAGE_NEW_ORDER);
+        var response = zeebeService.startNewProcess(order);
         return ResponseEntity.accepted().build();
     }
 
-    @PutMapping("/order")
-    public ResponseEntity<Void> updateOrder(@RequestBody Order order) {
-        var response = zeebeService.startProcess(order, MESSAGE_UPDATED_ORDER);
+    record DeliveryDateUpdateRequest(LocalDate deliveryDate) {}
+
+    @PutMapping("/order/{orderId}")
+    public ResponseEntity<Void> updateOrder(@PathVariable("orderId") String orderId, @RequestBody DeliveryDateUpdateRequest request) {
+        var response = zeebeService.startUpdateProcess(orderId, request.deliveryDate());
         return ResponseEntity.accepted().build();
     }
 

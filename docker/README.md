@@ -70,7 +70,7 @@ Keycloak: http://localhost:18080/auth/
 
 ### Core Components
 
-It is also possible to run only the core components, i.e. not Optimize or Identity and therefore not Keycloack & Postgres, using the following command:
+It is also possible to run only the core components, i.e. not Optimize or Identity and therefore not Keycloak & Postgres, using the following command:
 
 > `docker compose --file docker-compose-core.yaml up`
 

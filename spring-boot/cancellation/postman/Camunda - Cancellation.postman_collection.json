@@ -1,0 +1,307 @@
+{
+	"info": {
+		"_postman_id": "cdf0c8d8-294e-435a-b54e-116292ccea05",
+		"name": "Camunda - Cancellation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9896673"
+	},
+	"item": [
+		{
+			"name": "Create Order",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"var orderId = uuid.v4();",
+							"",
+							"pm.environment.set(\"orderId\", orderId);",
+							"",
+							"var moment = require('moment');",
+							"var today = moment();",
+							"var tomorrow = moment().add(1, 'days');",
+							"pm.environment.set('today', today.format(\"YYYY-MM-DD\"));",
+							"pm.environment.set('tomorrow', tomorrow.format(\"YYYY-MM-DD\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"customer\": {\n    \"customerId\": \"78910\",\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"123-456-7890\"\n  },\n  \"items\": [\n    {\n      \"itemId\": \"001\",\n      \"description\": \"Bluetooth Headphones\",\n      \"quantity\": 1,\n      \"price\": 85.50\n    },\n    {\n      \"itemId\": \"002\",\n      \"description\": \"Wireless Mouse\",\n      \"quantity\": 2,\n      \"price\": 25.00\n    }\n  ],\n  \"status\": \"Pending\",\n  \"orderDate\": \"{{today}}\",\n  \"deliveryDate\": \"{{tomorrow}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/order",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve All Tasks linked to the new order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"one pending task\", function() {",
+							"    pm.expect(response.length).to.eql(1);",
+							"    pm.expect(response[0].taskState).to.eql(\"CREATED\");",
+							"})",
+							"",
+							"pm.collectionVariables.set(\"taskId\", response[0].id);",
+							"pm.collectionVariables.set(\"processId\", response[0].processInstanceKey);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/task?orderId={{orderId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Order",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"var nextDay = moment().add(2, 'days');",
+							"pm.environment.set('nextDay', nextDay.format(\"YYYY-MM-DD\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"deliveryDate\": \"{{nextDay}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/order/{{orderId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"order",
+						"{{orderId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve All Tasks linked to the updated order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"same process id, different task id\", function() {",
+							"    pm.expect(response[0].id).to.not.eql(pm.variables.get(\"taskId\"));",
+							"    pm.expect(response[0].processInstanceKey).to.eql(pm.variables.get(\"processId\"));",
+							"})",
+							"",
+							"pm.test(\"one pending task\", function() {",
+							"    pm.expect(response.length).to.eql(1);",
+							"    pm.expect(response[0].taskState).to.eql(\"CREATED\");",
+							"})",
+							"",
+							"pm.test(\"task variables are updated\", function() {",
+							"    pm.expect(response[0].variables[1].value.items.length).to.eql(2);",
+							"    pm.expect(response[0].variables[1].value.deliveryDate).to.eql([2024, 05, 20]);",
+							"})",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/task?orderId={{orderId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve All Tasks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"same process id, same task id\", function() {",
+							"    pm.expect(response[0].id).to.eql(1);",
+							"    pm.expect(response[0].processInstanceKey).to.eql(\"CREATED\");",
+							"})",
+							"",
+							"pm.test(\"one pending task\", function() {",
+							"    pm.expect(response.length).to.eql(1);",
+							"    pm.expect(response[0].taskState).to.eql(\"CREATED\");",
+							"})",
+							"",
+							"pm.collectionVariables.set(\"taskId\", response[0].id);",
+							"pm.collectionVariables.set(\"processId\", response[0].processInstanceKey);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/task",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"task"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "taskId",
+			"value": ""
+		},
+		{
+			"key": "processId",
+			"value": ""
+		}
+	]
+}

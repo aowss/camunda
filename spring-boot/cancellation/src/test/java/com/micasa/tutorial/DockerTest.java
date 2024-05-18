@@ -24,9 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.FileReader;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,9 +130,8 @@ class DockerTest {
     @Test
     @DisplayName("Amount >= 1000 --> preferential rate")
     void preferentialRate() throws Exception {
-        zeebeService.startProcess(
-            new Order("O-1234", false, null, List.of(), 150.0f, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS)),
-            MESSAGE_NEW_ORDER
+        zeebeService.startNewProcess(
+            new Order("O-1234", null, List.of(), 150.0, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS))
         );
 
         InspectedProcessInstance processInstance = InspectionUtility
@@ -163,9 +160,8 @@ class DockerTest {
     @Disabled
     @DisplayName("Claim task")
     void claimTask() throws Exception {
-        zeebeService.startProcess(
-            new Order("O-1234", false, null, List.of(), 150.0f, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS)),
-            MESSAGE_NEW_ORDER
+        zeebeService.startNewProcess(
+            new Order("O-1234", null, List.of(), 150.0, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS))
         );
 
         InspectedProcessInstance processInstance = InspectionUtility
