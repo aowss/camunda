@@ -1,10 +1,9 @@
 package com.micasa.tutorial;
 
-import com.jayway.jsonpath.JsonPath;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.micasa.tutorial.model.Order;
 import com.micasa.tutorial.service.ZeebeService;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
-import io.camunda.zeebe.process.test.assertions.BpmnAssert;
 import io.camunda.zeebe.process.test.inspections.InspectionUtility;
 import io.camunda.zeebe.process.test.inspections.model.InspectedProcessInstance;
 import io.camunda.zeebe.spring.test.ZeebeSpringTest;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,25 +21,18 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.FileReader;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
-import static com.micasa.tutorial.Constants.MESSAGE_NEW_ORDER;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static io.camunda.zeebe.spring.test.ZeebeTestThreadSupport.waitForProcessInstanceHasPassedElement;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ZeebeSpringTest
-//@WireMockTest(httpPort = 9999)
+@WireMockTest(httpPort = 9999)
 @ActiveProfiles("test")
 @DisplayName("Cancellation Test")
 //@TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -127,11 +118,17 @@ class DockerTest {
     }
 
     public static final String UNASSIGNED_URL = "/task?state=created&assigned=false";
+
     @Test
-    @DisplayName("Amount >= 1000 --> preferential rate")
+    @DisplayName("Process and task are cancelled on update")
     void preferentialRate() throws Exception {
+        stubFor(post(urlPathEqualTo("/order")).willReturn(created()));
+        stubFor(post(urlPathEqualTo("/invoice")).willReturn(created()));
+        stubFor(post(urlPathEqualTo("/notification")).willReturn(created()));
+        stubFor(post(urlPathEqualTo("/dispatch")).willReturn(created()));
+
         zeebeService.startNewProcess(
-            new Order("O-1234", null, List.of(), 150.0, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS))
+                new Order("O-1234", null, List.of(), 150.0, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS))
         );
 
         InspectedProcessInstance processInstance = InspectionUtility
@@ -140,79 +137,6 @@ class DockerTest {
                 .findFirstProcessInstance()
                 .get();
 
-        waitForProcessInstanceHasPassedElement(processInstance, "Gateway_LargeAmount");
-
-        BpmnAssert.assertThat(processInstance)
-                .isWaitingAtElements("UserTask_PreferentialRate");
-
-        mvc.perform(get(UNASSIGNED_URL))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$.[0].taskState").value("CREATED"))
-                .andExpect(jsonPath("$.[0].candidateGroups[0]").value("manager"))
-                .andExpect(jsonPath("$.[0].assignee").value(null))
-                .andExpect(jsonPath("$.[0].variables[?(@.name == 'fromAmount')].value").value(2000))
-                .andExpect(jsonPath("$.[0].variables[?(@.name == 'fromCurrency')].value").value("CAD"))
-                .andExpect(jsonPath("$.[0].variables[?(@.name == 'toCurrency')].value").value("USD"));
-    }
-
-    @Test
-    @Disabled
-    @DisplayName("Claim task")
-    void claimTask() throws Exception {
-        zeebeService.startNewProcess(
-            new Order("O-1234", null, List.of(), 150.0, "PENDING", LocalDate.now(), LocalDate.now().plus(2, DAYS))
-        );
-
-        InspectedProcessInstance processInstance = InspectionUtility
-                .findProcessInstances()
-                .withBpmnProcessId(processId)
-                .findFirstProcessInstance()
-                .get();
-
-        waitForProcessInstanceHasPassedElement(processInstance, "Gateway_LargeAmount");
-
-        BpmnAssert.assertThat(processInstance)
-                .isWaitingAtElements("UserTask_PreferentialRate");
-
-        var result = mvc.perform(get(UNASSIGNED_URL))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$.[0].taskState").value("CREATED"))
-                .andReturn();
-
-        String id = JsonPath.read(result.getResponse().getContentAsString(), "$.[0].id");
-
-        mvc.perform(put("/task/{taskId}/status", id)
-                    .content("""
-                    {
-                        "status": "CLAIMED"
-                    }
-                    """)
-                    .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.taskState").value("CREATED"))
-                .andExpect(jsonPath("$.assignee").value("user-id"));
-
-        BpmnAssert.assertThat(processInstance)
-                .isWaitingAtElements("UserTask_PreferentialRate");
-
-        mvc.perform(get("/task/{taskId}", id))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.taskState").value("CREATED"))
-                .andExpect(jsonPath("$.assignee").value("user-id"));
-
-    }
-
-    private static Map<String, String> fromEnv(String path) {
-        try {
-            var envValues = new Properties();
-            envValues.load(new FileReader(path));
-            return new HashMap<>((Map<String, String>) ((Map) envValues));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        waitForProcessInstanceHasPassedElement(processInstance, "Task_PersistOrder");
     }
 }

@@ -21,3 +21,4 @@ tasklist:
   keycloak-url: http://localhost:18080
   client-id: ${zeebe.client.cloud.client-id}
   client-secret: ${zeebe.client.cloud.client-secret}
+
